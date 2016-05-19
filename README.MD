@@ -1,0 +1,1 @@
+Inspired by Star Control (http://sc2.sourceforge.net) and Istrolid (http://www.istrolid.com)
