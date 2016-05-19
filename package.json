@@ -1,0 +1,22 @@
+{
+  "name": "space_ace",
+  "version": "1.0.0",
+  "description": "A browser game inspired by Star Control and Istrolid",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://www.github.com/porqpine/space_ace"
+  },
+  "keywords": [
+    "game",
+    "javascript"
+  ],
+  "author": "Jørgen Braseth",
+  "license": "ISC",
+  "dependencies": {
+    "webpack": "^1.13.0"
+  }
+}
