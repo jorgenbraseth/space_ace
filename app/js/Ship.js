@@ -13,21 +13,21 @@ export default class Ship {
 
   constructor(game){
     this.game = game;
-    this.x = 100;
-    this.y = 100;
+    this.x = 55;
+    this.y = 55;
     this.width = 53;
     this.height = 42;
     this.centerX = 21;
     this.centerY = 23;
 
-    this.mass = 25;
+    this.mass = 45;
 
     this.dx = 0;
     this.dy = 0;
-    this.enginePower = 130;
+    this.enginePower = 230;
 
     this.angle = 0;
-    this.turnPower = 120;
+    this.turnPower = 220;
 
     this.turningCCW = false;
     this.turningCW = false;
