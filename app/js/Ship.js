@@ -1,4 +1,7 @@
 import Rocket from "../img/falcon.svg";
+import Engine from "./ship_modules/Engine";
+import Core from "./ship_modules/Core";
+import Armor from "./ship_modules/Armor";
 
 const DEGREE = (Math.PI/180);
 
@@ -10,16 +13,16 @@ const KEY_MAP = {
 };
 
 const SHIP_SCHEMATIC = [
-  "  SSS  ",
-  " SSXSS ",
-  " SESES "
+  "   S   ",
+  "  SXS  ",
+  "  EEE  "
 ];
 
 const BLOCK_SIZE = 10;
 
 export default class Ship {
 
-  constructor(game){
+  constructor(game) {
     this.game = game;
     this.x = 55;
     this.y = 55;
@@ -28,14 +31,16 @@ export default class Ship {
     this.centerX = 21;
     this.centerY = 23;
 
-    this.mass = 45;
+    this.mass = 0;
 
     this.dx = 0;
     this.dy = 0;
-    this.enginePower = 230;
+    this.enginePower = 0;
 
     this.angle = 0;
-    this.turnPower = 220;
+    this.turnPower = 0;
+
+    this.cost = 0;
 
     this.turningCCW = false;
     this.turningCW = false;
@@ -44,6 +49,42 @@ export default class Ship {
 
     this.img = new Image();
     this.img.src = Rocket;
+
+    this.loadParts();
+  }
+
+  loadParts(){
+    this.parts = [];
+
+    for (var row = 0; row < SHIP_SCHEMATIC.length; row++) {
+      var partsRow = [];
+      this.parts.push(partsRow);
+      var positions = SHIP_SCHEMATIC[row].split("");
+      for (var pos = 0; pos < positions.length; pos++) {
+        var block = positions[pos];
+        if(block === "E"){
+          var engine = new Engine();
+          partsRow.push(engine)
+        }else if(block === "S"){
+          partsRow.push(new Armor());
+        }else if(block === "X"){
+          this.centerX = pos*BLOCK_SIZE + BLOCK_SIZE/2;
+          this.centerY = row*BLOCK_SIZE + BLOCK_SIZE/2;
+          partsRow.push(new Core());
+        }else{
+          partsRow.push(undefined);
+        }
+      }
+    }
+
+    var allParts = [].concat.apply([], this.parts).filter((p)=> p != undefined);
+
+    this.mass = allParts.map((p)=>p.mass).reduce((a,b)=>a+b,0);
+    this.enginePower = allParts.map((p)=>p.enginePower).reduce((a,b)=>a+b,0);
+    this.turnPower = allParts.map((p)=>p.turnPower).reduce((a,b)=>a+b,0);
+    this.cost  = allParts.map((p)=>p.cost).reduce((a,b)=>a+b,0);
+
+    this.mass
   }
 
   bindKeys() {
@@ -65,46 +106,41 @@ export default class Ship {
 
     screen.translate(-this.centerX,-this.centerY);
 
-    for (var row = 0; row < SHIP_SCHEMATIC.length; row++) {
-      var positions = SHIP_SCHEMATIC[row].split("");
+    for (var row = 0; row < this.parts.length; row++) {
+      var positions = this.parts[row];
       for (var pos = 0; pos < positions.length; pos++) {
         var block = positions[pos];
-        screen.save();
-        screen.translate(pos*BLOCK_SIZE, row*BLOCK_SIZE);
-
-        if(block==="S"){
-          screen.fillStyle = "#999999";
-          screen.fillRect(0,0,BLOCK_SIZE,BLOCK_SIZE);
-        }else if(block === "X"){
-          this.centerX = pos*BLOCK_SIZE + BLOCK_SIZE/2;
-          this.centerY = row*BLOCK_SIZE + BLOCK_SIZE/2;
-          screen.fillStyle = "#666666";
-          screen.fillRect(0,0,BLOCK_SIZE,BLOCK_SIZE);
-
-          screen.fillStyle = "#ff3300";
-          screen.beginPath();
-          screen.arc(BLOCK_SIZE/2,BLOCK_SIZE/2,BLOCK_SIZE/3,0,2*Math.PI);
-          screen.closePath();
-          screen.fill();
-        }else if(block === "E"){
-          screen.fillStyle = "#00aa00";
-          screen.beginPath();
-          screen.lineTo(0,0);
-          screen.lineTo(BLOCK_SIZE,0);
-          screen.lineTo(BLOCK_SIZE,BLOCK_SIZE/2);
-          screen.lineTo(BLOCK_SIZE/2,BLOCK_SIZE);
-          screen.lineTo(0,BLOCK_SIZE/2);
-
-
-          //TODO: Tegn motor
-          screen.closePath();
-          screen.fill();
+        if(block != undefined){
+          screen.save();
+          screen.translate(pos*BLOCK_SIZE, row*BLOCK_SIZE);
+          block.draw(screen);
+          screen.restore();
         }
-        screen.restore();
-
       }
-
     }
+
+    // for (var row = 0; row < SHIP_SCHEMATIC.length; row++) {
+    //   var positions = SHIP_SCHEMATIC[row].split("");
+    //   for (var pos = 0; pos < positions.length; pos++) {
+    //     var block = positions[pos];
+    //     screen.save();
+    //     screen.translate(pos*BLOCK_SIZE, row*BLOCK_SIZE);
+    //
+    //     if(block==="S"){
+    //
+    //     }else if(block === "X"){
+    //       this.centerX = pos*BLOCK_SIZE + BLOCK_SIZE/2;
+    //       this.centerY = row*BLOCK_SIZE + BLOCK_SIZE/2;
+    //     }else if(block === "E"){
+    //
+    //
+    //
+    //       //TODO: Tegn motor
+    //       screen.closePath();
+    //       screen.fill();
+    //     }
+    //   }
+    // }
 
 
 
