@@ -20,15 +20,14 @@ export default class Ship {
     this.centerX = 21;
     this.centerY = 23;
 
-    this.mass = 200;
+    this.mass = 25;
 
-    this.maxSpeed = 8;
     this.dx = 0;
     this.dy = 0;
-    this.enginePower = 15;
+    this.enginePower = 130;
 
     this.angle = 0;
-    this.turnPower = 400;
+    this.turnPower = 120;
 
     this.turningCCW = false;
     this.turningCW = false;
@@ -56,19 +55,7 @@ export default class Ship {
     screen.rotate(this.angle);
     screen.translate(-this.centerX,-this.centerY);
 
-    // screen.fillStyle = "red";
-    // screen.beginPath();
-    // screen.lineTo(0,0);
-    // screen.lineTo(0,this.height);
-    // screen.lineTo(this.width, this.height/2);
-    // screen.closePath();
-    // screen.fill();
-    //
-    // screen.fillStyle = "green";
-    // screen.fillRect(-5,0,5,this.height);
-
     screen.drawImage(this.img, 0, 0, this.width, this.height);
-    // screen.fillRect(0,0,this.width,this.height);
 
     screen.restore();
 
@@ -80,11 +67,20 @@ export default class Ship {
   }
 
   get drag(){
-    return this.acceleration/4;
+    return this.physicsDrag;
+  }
+
+  get physicsDrag() {
+    const fluidDensity = 0.5;
+    const frontalArea = this.mass;
+    const speed = Math.sqrt(Math.pow(this.dx,2)+Math.pow(this.dy,2));
+    const dragForce = 0.05*fluidDensity*frontalArea*Math.pow(speed,2);
+
+    return dragForce/this.mass;
   }
 
   get acceleration() {
-    return this.enginePower / this.mass;
+    return (this.enginePower / this.mass);
   }
 
   get turnSpeed() {
@@ -100,41 +96,35 @@ export default class Ship {
       this.angle += this.turnSpeed ;
     }
 
-    if(this.accelerating && this.maxSpeed > (Math.sqrt(Math.pow(this.dx,2)+Math.pow(this.dy,2))) ){
+    if(this.accelerating ){
       var accX = Math.cos(this.angle)*this.acceleration;
       this.dx = this.dx + accX;
-      if(this.dx > this.maxSpeed){
-        this.dx = this.maxSpeed;
-      }else if(this.dx < -this.maxSpeed){
-        this.dx = -this.maxSpeed;
-      }
 
       var accY = Math.sin(this.angle)*this.acceleration;
       this.dy = this.dy + accY;
-      if(this.dy > this.maxSpeed){
-        this.dy = this.maxSpeed;
-      }else if(this.dy < -this.maxSpeed){
-        this.dy = -this.maxSpeed;
-      }
     }
-
 
     var breakX = Math.cos(this.movementAngleRadians)*this.drag;
-    if(breakX < 0){
-      this.dx = Math.min(0,this.dx - breakX);
-    }else{
-      this.dx = Math.max(0,this.dx - breakX);
-    }
+    this.dx = this.dx - breakX;
 
     var breakY = Math.sin(this.movementAngleRadians)*this.drag;
-    if(breakY < 0){
-      this.dy = Math.min(0,this.dy - breakY);
-    }else{
-      this.dy = Math.max(0,this.dy - breakY);
-    }
+    this.dy = this.dy - breakY;
 
 
     this.x += this.dx;
     this.y += this.dy;
+
+    var cw = this.game.canvas.getAttribute("width");
+    var ch = this.game.canvas.getAttribute("height");
+    if(this.x < 0){
+      this.x = cw - this.x;
+    }else if(this.x > cw){
+      this.x = this.x - cw;
+    }
+    if(this.y < 0){
+      this.y = ch - this.y;
+    }else if(this.y > ch){
+      this.y = this.y - ch;
+    }
   }
 }

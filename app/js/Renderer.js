@@ -13,14 +13,14 @@ export default class Renderer {
 
   render(sprites){
     this.clearScreen();
-    this.screen.fillStyle = "white";
     this.screen.save();
     sprites.forEach((sprite)=> sprite.draw(this.screen));
     this.screen.restore();
   }
 
   clearScreen(){
-    this.screen.clearRect(0,0,this.screenWidth, this.screenHeight);
+    this.screen.fillStyle = "rgba(255,255,255,0.55)";
+    // this.screen.clearRect(0,0,this.screenWidth, this.screenHeight);
     this.screen.fillRect(0,0,this.screenWidth, this.screenHeight);
   }
 }
