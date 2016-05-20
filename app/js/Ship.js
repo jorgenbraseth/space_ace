@@ -1,3 +1,4 @@
+import Rocket from "../img/falcon.svg";
 
 const DEGREE = (Math.PI/180);
 
@@ -14,15 +15,17 @@ export default class Ship {
     this.game = game;
     this.x = 100;
     this.y = 100;
-    this.width = 20;
-    this.height = 10;
+    this.width = 53;
+    this.height = 42;
+    this.centerX = 21;
+    this.centerY = 23;
 
     this.mass = 200;
 
-    this.maxSpeed = 4;
+    this.maxSpeed = 8;
     this.dx = 0;
     this.dy = 0;
-    this.enginePower = 10;
+    this.enginePower = 15;
 
     this.angle = 0;
     this.turnPower = 400;
@@ -31,6 +34,9 @@ export default class Ship {
     this.turningCW = false;
 
     this.bindKeys();
+
+    this.img = new Image();
+    this.img.src = Rocket;
   }
 
   bindKeys() {
@@ -48,18 +54,22 @@ export default class Ship {
     screen.save();
     screen.translate(this.x,this.y);
     screen.rotate(this.angle);
-    screen.translate(-this.width/2,-this.height/2);
+    screen.translate(-this.centerX,-this.centerY);
 
-    screen.fillStyle = "red";
-    screen.beginPath();
-    screen.lineTo(0,0);
-    screen.lineTo(0,this.height);
-    screen.lineTo(this.width, this.height/2);
-    screen.closePath();
-    screen.fill();
+    // screen.fillStyle = "red";
+    // screen.beginPath();
+    // screen.lineTo(0,0);
+    // screen.lineTo(0,this.height);
+    // screen.lineTo(this.width, this.height/2);
+    // screen.closePath();
+    // screen.fill();
+    //
+    // screen.fillStyle = "green";
+    // screen.fillRect(-5,0,5,this.height);
 
-
+    screen.drawImage(this.img, 0, 0, this.width, this.height);
     // screen.fillRect(0,0,this.width,this.height);
+
     screen.restore();
 
   }
@@ -70,7 +80,7 @@ export default class Ship {
   }
 
   get drag(){
-    return this.acceleration;
+    return this.acceleration/4;
   }
 
   get acceleration() {
@@ -90,9 +100,9 @@ export default class Ship {
       this.angle += this.turnSpeed ;
     }
 
-    if(this.accelerating){
+    if(this.accelerating && this.maxSpeed > (Math.sqrt(Math.pow(this.dx,2)+Math.pow(this.dy,2))) ){
       var accX = Math.cos(this.angle)*this.acceleration;
-      this.dx = Math.min(this.maxSpeed, this.dx + accX);
+      this.dx = this.dx + accX;
       if(this.dx > this.maxSpeed){
         this.dx = this.maxSpeed;
       }else if(this.dx < -this.maxSpeed){
@@ -100,27 +110,29 @@ export default class Ship {
       }
 
       var accY = Math.sin(this.angle)*this.acceleration;
-      this.dy = Math.min(this.maxSpeed, this.dy + accY);
+      this.dy = this.dy + accY;
       if(this.dy > this.maxSpeed){
         this.dy = this.maxSpeed;
       }else if(this.dy < -this.maxSpeed){
         this.dy = -this.maxSpeed;
       }
-    }else{
-      var breakX = Math.cos(this.movementAngleRadians)*this.drag;
-      if(breakX < 0){
-        this.dx = Math.min(0,this.dx - breakX);
-      }else{
-        this.dx = Math.max(0,this.dx - breakX);
-      }
-
-      var breakY = Math.sin(this.movementAngleRadians)*this.drag;
-      if(breakY < 0){
-        this.dy = Math.min(0,this.dy - breakY);
-      }else{
-        this.dy = Math.max(0,this.dy - breakY);
-      }
     }
+
+
+    var breakX = Math.cos(this.movementAngleRadians)*this.drag;
+    if(breakX < 0){
+      this.dx = Math.min(0,this.dx - breakX);
+    }else{
+      this.dx = Math.max(0,this.dx - breakX);
+    }
+
+    var breakY = Math.sin(this.movementAngleRadians)*this.drag;
+    if(breakY < 0){
+      this.dy = Math.min(0,this.dy - breakY);
+    }else{
+      this.dy = Math.max(0,this.dy - breakY);
+    }
+
 
     this.x += this.dx;
     this.y += this.dy;

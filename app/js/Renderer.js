@@ -13,6 +13,7 @@ export default class Renderer {
 
   render(sprites){
     this.clearScreen();
+    this.screen.fillStyle = "white";
     this.screen.save();
     sprites.forEach((sprite)=> sprite.draw(this.screen));
     this.screen.restore();
