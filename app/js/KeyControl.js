@@ -5,14 +5,7 @@ export default class KeyControl {
     this.keyCallbacks = {};
     this.keyUpCallbacks = {};
 
-    this.canvas.onkeydown = function(e){
-      var callbacks = this.keyCallbacks[e.keyCode];
-      if(callbacks){
-        for (var cb = 0; cb < callbacks.length; cb++) {
-          callbacks[cb]();
-        }
-      }
-    }.bind(this);
+    this.canvas.onkeydown = this.triggerKeyDownCallbacks.bind(this);
 
     this.canvas.onkeyup = function(e){
       var callbacks = this.keyUpCallbacks[e.keyCode];
@@ -22,6 +15,18 @@ export default class KeyControl {
         }
       }
     }.bind(this);
+  }
+
+  triggerKeyDownCallbacks(e){
+    var keyCode = e.keyCode;
+    // console.log(keyCode);
+    var callbacks = this.keyCallbacks[keyCode];
+    if(callbacks){
+      for (var cb = 0; cb < callbacks.length; cb++) {
+        callbacks[cb]();
+      }
+    }
+
   }
 
   onKeyDown(key, callback) {

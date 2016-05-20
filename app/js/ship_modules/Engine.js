@@ -7,15 +7,19 @@ export default class Engine {
   }
 
   get enginePower(){
-    return 15;
+    return 150;
   }
 
   get turnPower(){
-    return 20;
+    return 5;
   }
 
   get cost() {
     return 50;
+  }
+
+  get hp(){
+    return 5;
   }
 
   draw(screen){

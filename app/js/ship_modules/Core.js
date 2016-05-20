@@ -18,6 +18,10 @@ export default class Core {
     return 0;
   }
 
+  get hp(){
+    return 5;
+  }
+
   draw(screen){
     screen.fillStyle = "#666666";
     screen.fillRect(0,0,BLOCK_SIZE,BLOCK_SIZE);

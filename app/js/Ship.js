@@ -2,20 +2,26 @@ import Rocket from "../img/falcon.svg";
 import Engine from "./ship_modules/Engine";
 import Core from "./ship_modules/Core";
 import Armor from "./ship_modules/Armor";
+import Wing from "./ship_modules/Wing";
+import Gun from "./ship_modules/Gun";
+
+import {KEY_MAP} from "./Keys"
 
 const DEGREE = (Math.PI/180);
 
-const KEY_MAP = {
-  SHIFT: 16, //SHIFT KEY,
-  ACCELERATE: 87, //W
-  TURN_COUNTERCLOCKWISE: 65, //S
-  TURN_CLOCKWISE: 68 //D,
-};
+
 
 const SHIP_SCHEMATIC = [
-  "   S   ",
-  "  SXS  ",
-  "  EEE  "
+  "                     ",
+  "                     ",
+  "                     ",
+  "                     ",
+  "                     ",
+  "                     ",
+  "                     ",
+  "    GSG               ",
+  "    WXW              ",
+  "     E               "
 ];
 
 const BLOCK_SIZE = 10;
@@ -26,8 +32,6 @@ export default class Ship {
     this.game = game;
     this.x = 55;
     this.y = 55;
-    this.width = 53;
-    this.height = 42;
     this.centerX = 21;
     this.centerY = 23;
 
@@ -63,20 +67,28 @@ export default class Ship {
       for (var pos = 0; pos < positions.length; pos++) {
         var block = positions[pos];
         if(block === "E"){
-          var engine = new Engine();
+          var engine = new Engine(this.game);
           partsRow.push(engine)
         }else if(block === "S"){
-          partsRow.push(new Armor());
+          partsRow.push(new Armor(this.game));
+        }else if(block === "G"){
+          partsRow.push(new Gun(this.game));
+        }else if(block === "W"){
+          partsRow.push(new Wing(true,this.game));
         }else if(block === "X"){
           this.centerX = pos*BLOCK_SIZE + BLOCK_SIZE/2;
           this.centerY = row*BLOCK_SIZE + BLOCK_SIZE/2;
-          partsRow.push(new Core());
+          partsRow.push(new Core(this.game));
         }else{
           partsRow.push(undefined);
         }
       }
     }
 
+    this.recalculateAggregateProperties();
+  }
+
+  recalculateAggregateProperties(){
     var allParts = [].concat.apply([], this.parts).filter((p)=> p != undefined);
 
     this.mass = allParts.map((p)=>p.mass).reduce((a,b)=>a+b,0);
@@ -84,7 +96,7 @@ export default class Ship {
     this.turnPower = allParts.map((p)=>p.turnPower).reduce((a,b)=>a+b,0);
     this.cost  = allParts.map((p)=>p.cost).reduce((a,b)=>a+b,0);
 
-    this.mass
+    this.modulesThatTick = allParts.filter((p)=>p.tick != undefined )
   }
 
   bindKeys() {
@@ -176,7 +188,12 @@ export default class Ship {
     return this.turnPower / this.mass * DEGREE;
   }
 
+  tickModules(){
+    this.modulesThatTick.forEach((m)=>m.tick());
+  }
+
   tick() {
+    this.tickModules();
 
     if(this.turningCCW){
       this.angle -= this.turnSpeed ;

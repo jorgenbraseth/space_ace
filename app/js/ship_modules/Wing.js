@@ -1,9 +1,13 @@
 const BLOCK_SIZE = 10;
 
+var _isOnLeftSide;
 export default class Armor {
 
+  constructor(isOnLeftSide){
+    _isOnLeftSide = isOnLeftSide;
+  }
   get mass(){
-    return 100;
+    return 15;
   }
 
   get enginePower(){
@@ -11,7 +15,7 @@ export default class Armor {
   }
 
   get turnPower(){
-    return 0;
+    return 350;
   }
 
   get cost() {
@@ -19,11 +23,11 @@ export default class Armor {
   }
 
   get hp(){
-    return 50;
+    return 10;
   }
 
   draw(screen){
-    screen.fillStyle = "#999999";
+    screen.fillStyle = "#0066ff";
     screen.fillRect(0,0,BLOCK_SIZE,BLOCK_SIZE);
   }
 }
