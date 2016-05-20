@@ -9,6 +9,14 @@ const KEY_MAP = {
   TURN_CLOCKWISE: 68 //D,
 };
 
+const SHIP_SCHEMATIC = [
+  "  SSS  ",
+  " SSXSS ",
+  " SESES "
+];
+
+const BLOCK_SIZE = 10;
+
 export default class Ship {
 
   constructor(game){
@@ -52,10 +60,55 @@ export default class Ship {
   draw(screen){
     screen.save();
     screen.translate(this.x,this.y);
+    screen.rotate(90*DEGREE);
     screen.rotate(this.angle);
+
     screen.translate(-this.centerX,-this.centerY);
 
-    screen.drawImage(this.img, 0, 0, this.width, this.height);
+    for (var row = 0; row < SHIP_SCHEMATIC.length; row++) {
+      var positions = SHIP_SCHEMATIC[row].split("");
+      for (var pos = 0; pos < positions.length; pos++) {
+        var block = positions[pos];
+        screen.save();
+        screen.translate(pos*BLOCK_SIZE, row*BLOCK_SIZE);
+
+        if(block==="S"){
+          screen.fillStyle = "#999999";
+          screen.fillRect(0,0,BLOCK_SIZE,BLOCK_SIZE);
+        }else if(block === "X"){
+          this.centerX = pos*BLOCK_SIZE + BLOCK_SIZE/2;
+          this.centerY = row*BLOCK_SIZE + BLOCK_SIZE/2;
+          screen.fillStyle = "#666666";
+          screen.fillRect(0,0,BLOCK_SIZE,BLOCK_SIZE);
+
+          screen.fillStyle = "#ff3300";
+          screen.beginPath();
+          screen.arc(BLOCK_SIZE/2,BLOCK_SIZE/2,BLOCK_SIZE/3,0,2*Math.PI);
+          screen.closePath();
+          screen.fill();
+        }else if(block === "E"){
+          screen.fillStyle = "#00aa00";
+          screen.beginPath();
+          screen.lineTo(0,0);
+          screen.lineTo(BLOCK_SIZE,0);
+          screen.lineTo(BLOCK_SIZE,BLOCK_SIZE/2);
+          screen.lineTo(BLOCK_SIZE/2,BLOCK_SIZE);
+          screen.lineTo(0,BLOCK_SIZE/2);
+
+
+          //TODO: Tegn motor
+          screen.closePath();
+          screen.fill();
+        }
+        screen.restore();
+
+      }
+
+    }
+
+
+
+    // screen.drawImage(this.img, 0, 0, this.width, this.height);
 
     screen.restore();
 
