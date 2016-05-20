@@ -19,7 +19,7 @@ export default class Renderer {
   }
 
   clearScreen(){
-    this.screen.fillStyle = "rgba(255,255,255,0.55)";
+    this.screen.fillStyle = "rgba(234,234,234,0.55)";
     // this.screen.clearRect(0,0,this.screenWidth, this.screenHeight);
     this.screen.fillRect(0,0,this.screenWidth, this.screenHeight);
   }
