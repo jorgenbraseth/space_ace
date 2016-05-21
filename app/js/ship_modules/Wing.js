@@ -7,6 +7,7 @@ const ENGINE_POWER = 0;
 const TURN_POWER = 350;
 const COST = 5;
 const HITPOINTS = 10;
+const POWER_GENERATION = 0;
 
 var _isOnLeftSide;
 
@@ -14,7 +15,7 @@ var _isOnLeftSide;
 export default class Armor extends ShipModule {
 
   constructor(ship, isOnLeftSide,x,y){
-    super(ship, x, y, MASS, ENGINE_POWER, TURN_POWER, COST, HITPOINTS);
+    super(ship, x, y, MASS, ENGINE_POWER, TURN_POWER, COST, HITPOINTS,POWER_GENERATION);
     _isOnLeftSide = isOnLeftSide;
   }
 

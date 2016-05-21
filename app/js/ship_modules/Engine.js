@@ -8,11 +8,12 @@ const ENGINE_POWER = 100;
 const TURN_POWER = 5;
 const COST = 50;
 const HITPOINTS = 5;
+const POWER_GENERATION = 0;
 
 export default class Engine extends ShipModule {
 
   constructor(ship,x,y){
-    super(ship, x, y, MASS, ENGINE_POWER, TURN_POWER, COST, HITPOINTS);
+    super(ship, x, y, MASS, ENGINE_POWER, TURN_POWER, COST, HITPOINTS,POWER_GENERATION);
   }
 
   draw(screen){

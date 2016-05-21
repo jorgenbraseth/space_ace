@@ -5,7 +5,7 @@ var _mass,_enginePower, _turnPower, _cost, _hitpoints;
 
 export default class ShipModule {
 
-  constructor(ship, x, y, mass, enginePower, turnPower, cost, hp) {
+  constructor(ship, x, y, mass, enginePower, turnPower, cost, hp, powerGeneration) {
     this.x = x;
     this.y = y;
 
@@ -19,6 +19,7 @@ export default class ShipModule {
     this._turnPower = turnPower;
     this._cost = cost;
     this._hitpoints = hp;
+    this._powerGeneration = powerGeneration;
   }
 
   get collisionInfo(){
@@ -54,5 +55,9 @@ export default class ShipModule {
 
   get hp(){
     return this._hitpoints;
+  }
+  
+  get powerGeneration(){
+    return this._powerGeneration;
   }
 }
