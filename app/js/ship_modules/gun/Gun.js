@@ -1,62 +1,31 @@
 const BLOCK_SIZE = 10;
 
+import ShipModule from "../ShipModule"
 import Bullet from "./Bullet"
+
 
 import {KEY_MAP} from "../../Keys"
 
 var x;
 var y;
 
-export default class Gun {
+const MASS = 25;
+const ENGINE_POWER = 0;
+const TURN_POWER = 0;
+const COST = 25;
+const HITPOINTS = 10;
+
+export default class Gun extends ShipModule{
 
   constructor(ship, x, y){
-    this.x = x;
-    this.y = y;
-    this.ship = ship;
-    this.game = ship.game;
-    this.angle = 0;
-
+    super(ship, x, y, MASS, ENGINE_POWER, TURN_POWER, COST, HITPOINTS);
+    
     this.firingRate = 15;
     this.timeToNextFire = 0;
 
     this.shooting = false;
     this.game.keyControl.onKeyDown(KEY_MAP.SPACE, ()=>this.shooting = true);
     this.game.keyControl.onKeyUp(KEY_MAP.SPACE, ()=>this.shooting = false);
-  }
-
-  get mass(){
-    return 25;
-  }
-
-  get enginePower(){
-    return 0;
-  }
-
-  get turnPower(){
-    return 0;
-  }
-
-  get cost() {
-    return 25;
-  }
-
-  get hp(){
-    return 10;
-  }
-  
-  get collisionInfo(){
-    return {
-      worldPosCenter: this.worldPos,
-      width: BLOCK_SIZE,
-      height: BLOCK_SIZE,
-      
-      transforms: [
-        {translate: [this.ship.x, this.ship.y]},
-        {rotate:this.ship.angle},
-        {translate: [this.x, this.y]}
-      ]
-      
-    }
   }
 
   draw(screen){

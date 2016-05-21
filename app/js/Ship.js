@@ -12,10 +12,9 @@ const DEGREE = (Math.PI/180);
 
 
 const SHIP_SCHEMATIC = [
-  "                ",
-  "                ",
-  "     X          ",
-  "                "
+  "            ",
+  "     X      ",
+  "            "
 ];
 
 const BLOCK_SIZE = 10;
