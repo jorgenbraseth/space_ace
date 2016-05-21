@@ -1,14 +1,17 @@
+import Sprite from "../../Sprite"
+
 const DEGREE = (Math.PI/180);
 
 var x,y,gun;
 
-export default class Bullet {
+export default class Bullet extends Sprite {
 
   constructor(gun, x,y,angle){
+    super();
     this.gun = gun;
     this.x = x;
     this.y = y;
-    this.speed = 5;
+    this.speed = 0.1;
     this.angle = angle;
     this.age = 0;
 
@@ -32,7 +35,6 @@ export default class Bullet {
     this.gun.game.removeShot(this)
   }
 
-
   draw(screen){
 
     screen.save();
@@ -53,6 +55,7 @@ export default class Bullet {
     screen.fill();
 
     screen.restore();
+    this.drawBoundingBox(screen);
   }
 
   wrapAroundWorld(){
@@ -68,5 +71,33 @@ export default class Bullet {
     }else if(this.y > ch){
       this.y = this.y - ch;
     }
+  }
+
+
+  get width(){
+    return 2;
+  }
+
+  get height(){
+    return 5;
+  }
+
+  get globalX(){
+    return this.x;
+  }
+
+  get globalY(){
+    return this.y;
+  }
+
+
+  get globalAngle(){
+      return this.angle;
+  }
+
+
+  collide(collidedWith){
+    this.die();
+    console.log("I collided!");
   }
 }

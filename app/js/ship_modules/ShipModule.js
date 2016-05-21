@@ -1,13 +1,23 @@
+import SAT from "sat";
+const V = SAT.Vector;
+
+import Sprite from "../Sprite"
+
+const BLOCK_SIZE = 10;
 
 var ship,game;
 var x,y,angle;
 var _mass,_enginePower, _turnPower, _cost, _hitpoints;
 
-export default class ShipModule {
+export default class ShipModule extends Sprite {
 
-  constructor(ship, x, y, mass, enginePower, turnPower, cost, hp, powerGeneration) {
+  constructor(ship, x, y, mass, enginePower, turnPower, cost, hp, powerGeneration, width=BLOCK_SIZE, height=BLOCK_SIZE) {
+    super();
     this.x = x;
     this.y = y;
+
+    this._width = width;
+    this._height = height;
 
     this.ship = ship;
     this.game = ship.game;
@@ -22,21 +32,6 @@ export default class ShipModule {
     this._powerGeneration = powerGeneration;
   }
 
-  get collisionInfo(){
-    return {
-      worldPosCenter: this.worldPos,
-      width: BLOCK_SIZE,
-      height: BLOCK_SIZE,
-
-      transforms: [
-        {translate: [this.ship.x, this.ship.y]},
-        {rotate:this.ship.angle},
-        {translate: [this.x, this.y]}
-      ]
-
-    }
-  }
-  
   get mass(){
     return this._mass;
   }
@@ -56,8 +51,61 @@ export default class ShipModule {
   get hp(){
     return this._hitpoints;
   }
-  
+
   get powerGeneration(){
     return this._powerGeneration;
+  }
+
+  get height(){
+      return this._height;
+  }
+
+  get globalAngle(){
+      return this.angle+this.ship.angle;
+  }
+
+  get drawParent(){
+      return this.ship;
+  }
+
+  get width() {
+      return this._width;
+  }
+
+  get globalX(){
+    return this.worldPos[0];
+  }
+
+  get globalY(){
+    return this.worldPos[1];
+  }
+
+
+  // get collisionInfo(){
+  //   return {
+  //     worldPosCenter: this.worldPos,
+  //     width: BLOCK_SIZE,
+  //     height: BLOCK_SIZE,
+  //
+  //     transforms: [
+  //       {translate: [this.ship.x, this.ship.y]},
+  //       {rotate:this.ship.angle},
+  //       {translate: [this.x, this.y]}
+  //     ]
+  //
+  //   }
+  // }
+
+
+
+  get worldPos(){
+    const shipAngle = this.ship.angle+Math.PI/2;
+    const shipCenterOffestX = this.x+BLOCK_SIZE/2 - this.ship.pivotX;
+    const shipCenterOffestY = this.y+BLOCK_SIZE/2 - this.ship.pivotY;
+
+    const x = this.ship.x + Math.cos(shipAngle)*(shipCenterOffestX) - Math.sin(shipAngle)*shipCenterOffestY;
+    const y = this.ship.y + Math.sin(shipAngle)*(shipCenterOffestX) + Math.cos(shipAngle)*shipCenterOffestY;
+
+    return [x,y];
   }
 }

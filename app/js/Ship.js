@@ -1,3 +1,5 @@
+import Sprite from "./Sprite";
+
 import Rocket from "../img/falcon.svg";
 import Engine from "./ship_modules/Engine";
 import Core from "./ship_modules/Core";
@@ -13,25 +15,26 @@ const DEGREE = (Math.PI/180);
 
 
 const SHIP_SCHEMATIC = [
-  "GXW",
-  " E "
+  "WX ",
+  "SE "
 ];
 
 const BLOCK_SIZE = 10;
 
-export default class Ship {
+export default class Ship extends Sprite {
 
   constructor(game) {
+    super();
     this.game = game;
     this.x = 55;
     this.y = 55;
-    this.pivotX = 0;
-    this.pivotY = 0;
+    this._pivotX = 0;
+    this._pivotY = 0;
 
     this.mass = 0;
 
-    this.width = 30;
-    this.height = 20;
+    this._width = 30;
+    this._height = 20;
 
     this.dx = 0;
     this.dy = 0;
@@ -57,6 +60,34 @@ export default class Ship {
     return this.angle;
   }
 
+  get width() {
+    return this._width;
+  }
+
+  get height(){
+      return this._height;
+  }
+
+  get globalX(){
+      return this.x;
+  }
+
+  get globalY(){
+      return this.y
+  }
+
+  get drawParent(){
+      return undefined
+  }
+
+  get pivotX() {
+    return this._pivotX;
+  }
+
+  get pivotY(){
+      return this._pivotY;
+    }
+
   loadParts(){
     this._modules = [];
 
@@ -64,7 +95,7 @@ export default class Ship {
       var y = row*BLOCK_SIZE;
 
       var partsRow = [];
-      this.modules.push(partsRow);
+      this._modules.push(partsRow);
       var positions = SHIP_SCHEMATIC[row].split("");
       for (var pos = 0; pos < positions.length; pos++) {
         var x = pos*BLOCK_SIZE;
@@ -81,8 +112,8 @@ export default class Ship {
         }else if(block === "W"){
           partsRow.push(new Wing(this, true,x,y));
         }else if(block === "X"){
-          this.pivotX = pos*BLOCK_SIZE + BLOCK_SIZE/2;
-          this.pivotY = row*BLOCK_SIZE + BLOCK_SIZE/2;
+          this._pivotX = pos*BLOCK_SIZE + BLOCK_SIZE/2;
+          this._pivotY = row*BLOCK_SIZE + BLOCK_SIZE/2;
           partsRow.push(new Core(this,x,y));
         }else{
           partsRow.push(undefined);
@@ -93,8 +124,10 @@ export default class Ship {
     this.recalculateAggregateProperties();
   }
 
+
+
   recalculateAggregateProperties(){
-    var allParts = [].concat.apply([], this.modules).filter((p)=> p != undefined);
+    var allParts = this.modules;
 
     this.mass = allParts.map((p)=>p.mass).reduce((a,b)=>a+b,0);
     this.enginePower = allParts.map((p)=>p.enginePower).reduce((a,b)=>a+b,0);
@@ -123,8 +156,8 @@ export default class Ship {
 
     screen.translate(-this.pivotX,-this.pivotY);
 
-    for (var row = 0; row < this.modules.length; row++) {
-      var positions = this.modules[row];
+    for (var row = 0; row < this._modules.length; row++) {
+      var positions = this._modules[row];
       for (var pos = 0; pos < positions.length; pos++) {
         var block = positions[pos];
         if(block != undefined){
@@ -138,23 +171,11 @@ export default class Ship {
   }
 
   get modules(){
-    return this._modules;
+    return [].concat.apply([], this._modules).filter((p)=> p != undefined);
   }
 
   collide(collidedWith){
     console.log(this.constructor.name + " collided with " + collidedWith.constructor.name);
-  }
-
-  drawBoundingBox(screen){
-    const bbox = boundingBox(this);
-    screen.beginPath();
-    bbox.points.forEach((p)=>{
-      screen.lineTo(p.x,p.y)
-    });
-    screen.closePath();
-    screen.strokeStyle = "orange";
-    screen.stroke();
-
   }
 
   get movementAngleRadians(){

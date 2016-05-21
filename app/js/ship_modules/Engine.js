@@ -13,7 +13,7 @@ const POWER_GENERATION = 0;
 export default class Engine extends ShipModule {
 
   constructor(ship,x,y){
-    super(ship, x, y, MASS, ENGINE_POWER, TURN_POWER, COST, HITPOINTS,POWER_GENERATION);
+    super(ship, x, y, MASS, ENGINE_POWER, TURN_POWER, COST, HITPOINTS,POWER_GENERATION, BLOCK_SIZE, BLOCK_SIZE);
   }
 
   draw(screen){
@@ -31,5 +31,10 @@ export default class Engine extends ShipModule {
     screen.fill();
 
     screen.restore();
+
+
+    var newScreen = screen.canvas.getContext('2d');
+    newScreen.restore();
+    this.drawBoundingBox(newScreen);
   }
 }

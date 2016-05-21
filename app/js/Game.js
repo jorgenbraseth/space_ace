@@ -50,9 +50,10 @@ export default class Game {
   handleCollisions(){
     LAYERS.SHIPS.forEach((ship)=>{
       LAYERS.SHOTS.forEach((shot)=>{
-        if(isSpritesColliding(ship,shot)){
+        if(isSpritesColliding(ship,shot) && shot.gun.ship != ship){
           ship.modules.forEach((module)=>{
             if(isSpritesColliding(module,shot)){
+              console.log(module);
               ship.collide(shot);
               shot.collide(ship);
             }

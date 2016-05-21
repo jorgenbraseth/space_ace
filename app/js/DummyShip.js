@@ -237,4 +237,12 @@ export default class DummyShip {
   get speed() {
     return Math.sqrt(Math.pow(this.dx,2)+Math.pow(this.dy,2));
   }
+
+  get globalX(){
+    return this.x;
+  }
+
+  get globalY(){
+    return this.y
+  }
 }

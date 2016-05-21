@@ -16,12 +16,12 @@ const COST = 25;
 const HITPOINTS = 10;
 const POWER_GENERATION = 0;
 
-export default class Gun extends ShipModule{
+export default class Gun extends ShipModule {
 
   constructor(ship, x, y){
     super(ship, x, y, MASS, ENGINE_POWER, TURN_POWER, COST, HITPOINTS,POWER_GENERATION);
 
-    this.firingRate = 12;
+    this.firingRate = 2;
     this.timeToNextFire = 0;
 
     this.shooting = false;
@@ -61,14 +61,5 @@ export default class Gun extends ShipModule{
     }
   }
 
-  get worldPos(){
-    const shipAngle = this.ship.angle+Math.PI/2;
-    const shipCenterOffestX = this.x+BLOCK_SIZE/2 - this.ship.pivotX;
-    const shipCenterOffestY = this.y+BLOCK_SIZE/2 - this.ship.pivotY;
-
-    const x = this.ship.x + Math.cos(shipAngle)*(shipCenterOffestX) - Math.sin(shipAngle)*shipCenterOffestY  ;
-    const y = this.ship.y + Math.sin(shipAngle)*(shipCenterOffestX) + Math.cos(shipAngle)*shipCenterOffestY;
-
-    return [x,y];
-  }
+  
 }
