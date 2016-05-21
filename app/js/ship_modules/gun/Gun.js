@@ -20,8 +20,8 @@ export default class Gun extends ShipModule{
 
   constructor(ship, x, y){
     super(ship, x, y, MASS, ENGINE_POWER, TURN_POWER, COST, HITPOINTS,POWER_GENERATION);
-    
-    this.firingRate = 15;
+
+    this.firingRate = 12;
     this.timeToNextFire = 0;
 
     this.shooting = false;
@@ -57,14 +57,14 @@ export default class Gun extends ShipModule{
   tick(){
     if(this.shooting && this.timeToNextFire-- == 0){
       this.timeToNextFire = this.firingRate;
-      this.game.spawn(new Bullet(this, ...this.worldPos, this.ship.angle),"OVER_SHIPS");
+      this.game.spawn(new Bullet(this, ...this.worldPos, this.ship.angle),"SHOTS");
     }
   }
 
   get worldPos(){
     const shipAngle = this.ship.angle+Math.PI/2;
-    const shipCenterOffestX = this.x+BLOCK_SIZE/2 - this.ship.centerX;
-    const shipCenterOffestY = this.y+BLOCK_SIZE/2 - this.ship.centerY;
+    const shipCenterOffestX = this.x+BLOCK_SIZE/2 - this.ship.pivotX;
+    const shipCenterOffestY = this.y+BLOCK_SIZE/2 - this.ship.pivotY;
 
     const x = this.ship.x + Math.cos(shipAngle)*(shipCenterOffestX) - Math.sin(shipAngle)*shipCenterOffestY  ;
     const y = this.ship.y + Math.sin(shipAngle)*(shipCenterOffestX) + Math.cos(shipAngle)*shipCenterOffestY;

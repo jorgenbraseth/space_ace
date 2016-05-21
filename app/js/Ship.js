@@ -6,15 +6,15 @@ import Wing from "./ship_modules/Wing";
 import Gun from "./ship_modules/gun/Gun";
 
 import {KEY_MAP} from "./Keys"
+import {boundingBox} from "./Utils"
 
 const DEGREE = (Math.PI/180);
 
 
 
 const SHIP_SCHEMATIC = [
-  "            ",
-  "     X      ",
-  "            "
+  "GXW",
+  " E "
 ];
 
 const BLOCK_SIZE = 10;
@@ -25,10 +25,13 @@ export default class Ship {
     this.game = game;
     this.x = 55;
     this.y = 55;
-    this.centerX = 21;
-    this.centerY = 23;
+    this.pivotX = 0;
+    this.pivotY = 0;
 
     this.mass = 0;
+
+    this.width = 30;
+    this.height = 20;
 
     this.dx = 0;
     this.dy = 0;
@@ -50,14 +53,18 @@ export default class Ship {
     this.loadParts();
   }
 
+  get globalAngle() {
+    return this.angle;
+  }
+
   loadParts(){
-    this.parts = [];
+    this._modules = [];
 
     for (var row = 0; row < SHIP_SCHEMATIC.length; row++) {
       var y = row*BLOCK_SIZE;
 
       var partsRow = [];
-      this.parts.push(partsRow);
+      this.modules.push(partsRow);
       var positions = SHIP_SCHEMATIC[row].split("");
       for (var pos = 0; pos < positions.length; pos++) {
         var x = pos*BLOCK_SIZE;
@@ -74,8 +81,8 @@ export default class Ship {
         }else if(block === "W"){
           partsRow.push(new Wing(this, true,x,y));
         }else if(block === "X"){
-          this.centerX = pos*BLOCK_SIZE + BLOCK_SIZE/2;
-          this.centerY = row*BLOCK_SIZE + BLOCK_SIZE/2;
+          this.pivotX = pos*BLOCK_SIZE + BLOCK_SIZE/2;
+          this.pivotY = row*BLOCK_SIZE + BLOCK_SIZE/2;
           partsRow.push(new Core(this,x,y));
         }else{
           partsRow.push(undefined);
@@ -87,7 +94,7 @@ export default class Ship {
   }
 
   recalculateAggregateProperties(){
-    var allParts = [].concat.apply([], this.parts).filter((p)=> p != undefined);
+    var allParts = [].concat.apply([], this.modules).filter((p)=> p != undefined);
 
     this.mass = allParts.map((p)=>p.mass).reduce((a,b)=>a+b,0);
     this.enginePower = allParts.map((p)=>p.enginePower).reduce((a,b)=>a+b,0);
@@ -114,10 +121,10 @@ export default class Ship {
     screen.rotate(90*DEGREE);
     screen.rotate(this.angle);
 
-    screen.translate(-this.centerX,-this.centerY);
+    screen.translate(-this.pivotX,-this.pivotY);
 
-    for (var row = 0; row < this.parts.length; row++) {
-      var positions = this.parts[row];
+    for (var row = 0; row < this.modules.length; row++) {
+      var positions = this.modules[row];
       for (var pos = 0; pos < positions.length; pos++) {
         var block = positions[pos];
         if(block != undefined){
@@ -126,6 +133,28 @@ export default class Ship {
       }
     }
     screen.restore();
+
+    this.drawBoundingBox(screen);
+  }
+
+  get modules(){
+    return this._modules;
+  }
+
+  collide(collidedWith){
+    console.log(this.constructor.name + " collided with " + collidedWith.constructor.name);
+  }
+
+  drawBoundingBox(screen){
+    const bbox = boundingBox(this);
+    screen.beginPath();
+    bbox.points.forEach((p)=>{
+      screen.lineTo(p.x,p.y)
+    });
+    screen.closePath();
+    screen.strokeStyle = "orange";
+    screen.stroke();
+
   }
 
   get movementAngleRadians(){
