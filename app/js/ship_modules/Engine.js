@@ -1,6 +1,14 @@
 const BLOCK_SIZE = 10;
 
+var x;
+var y;
+
 export default class Engine {
+
+  constructor(ship,x,y){
+    this.x = x;
+    this.y = y;
+  }
 
   get mass(){
     return 5;
@@ -23,6 +31,9 @@ export default class Engine {
   }
 
   draw(screen){
+    screen.save();
+    screen.translate(this.x,this.y);
+
     screen.fillStyle = "#00aa00";
     screen.beginPath();
     screen.lineTo(0,0);
@@ -32,5 +43,7 @@ export default class Engine {
     screen.lineTo(0,BLOCK_SIZE/2);
     screen.closePath();
     screen.fill();
+
+    screen.restore();
   }
 }

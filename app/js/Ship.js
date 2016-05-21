@@ -3,7 +3,7 @@ import Engine from "./ship_modules/Engine";
 import Core from "./ship_modules/Core";
 import Armor from "./ship_modules/Armor";
 import Wing from "./ship_modules/Wing";
-import Gun from "./ship_modules/Gun";
+import Gun from "./ship_modules/gun/Gun";
 
 import {KEY_MAP} from "./Keys"
 
@@ -12,16 +12,10 @@ const DEGREE = (Math.PI/180);
 
 
 const SHIP_SCHEMATIC = [
-  "                     ",
-  "                     ",
-  "                     ",
-  "                     ",
-  "                     ",
-  "                     ",
-  "                     ",
-  "    GSG               ",
-  "    WXW              ",
-  "     E               "
+  "                ",
+  "                ",
+  "     X          ",
+  "                "
 ];
 
 const BLOCK_SIZE = 10;
@@ -61,24 +55,29 @@ export default class Ship {
     this.parts = [];
 
     for (var row = 0; row < SHIP_SCHEMATIC.length; row++) {
+      var y = row*BLOCK_SIZE;
+
       var partsRow = [];
       this.parts.push(partsRow);
       var positions = SHIP_SCHEMATIC[row].split("");
       for (var pos = 0; pos < positions.length; pos++) {
+        var x = pos*BLOCK_SIZE;
+
         var block = positions[pos];
         if(block === "E"){
-          var engine = new Engine(this.game);
+          var engine = new Engine(this,x,y);
           partsRow.push(engine)
         }else if(block === "S"){
-          partsRow.push(new Armor(this.game));
+          partsRow.push(new Armor(this,x,y));
         }else if(block === "G"){
-          partsRow.push(new Gun(this.game));
+          var gun = new Gun(this,x,y);
+          partsRow.push(gun);
         }else if(block === "W"){
-          partsRow.push(new Wing(true,this.game));
+          partsRow.push(new Wing(this, true,x,y));
         }else if(block === "X"){
           this.centerX = pos*BLOCK_SIZE + BLOCK_SIZE/2;
           this.centerY = row*BLOCK_SIZE + BLOCK_SIZE/2;
-          partsRow.push(new Core(this.game));
+          partsRow.push(new Core(this,x,y));
         }else{
           partsRow.push(undefined);
         }
@@ -123,43 +122,11 @@ export default class Ship {
       for (var pos = 0; pos < positions.length; pos++) {
         var block = positions[pos];
         if(block != undefined){
-          screen.save();
-          screen.translate(pos*BLOCK_SIZE, row*BLOCK_SIZE);
           block.draw(screen);
-          screen.restore();
         }
       }
     }
-
-    // for (var row = 0; row < SHIP_SCHEMATIC.length; row++) {
-    //   var positions = SHIP_SCHEMATIC[row].split("");
-    //   for (var pos = 0; pos < positions.length; pos++) {
-    //     var block = positions[pos];
-    //     screen.save();
-    //     screen.translate(pos*BLOCK_SIZE, row*BLOCK_SIZE);
-    //
-    //     if(block==="S"){
-    //
-    //     }else if(block === "X"){
-    //       this.centerX = pos*BLOCK_SIZE + BLOCK_SIZE/2;
-    //       this.centerY = row*BLOCK_SIZE + BLOCK_SIZE/2;
-    //     }else if(block === "E"){
-    //
-    //
-    //
-    //       //TODO: Tegn motor
-    //       screen.closePath();
-    //       screen.fill();
-    //     }
-    //   }
-    // }
-
-
-
-    // screen.drawImage(this.img, 0, 0, this.width, this.height);
-
     screen.restore();
-
   }
 
   get movementAngleRadians(){
@@ -195,13 +162,44 @@ export default class Ship {
   tick() {
     this.tickModules();
 
+    this.calculateNewAngle();
+    this.calculateNewSpeeds();
+    this.moveAccordingToSpeed();
+
+    this.wrapAroundWorld();
+
+  }
+
+  moveAccordingToSpeed(){
+    this.x += this.dx;
+    this.y += this.dy;
+  }
+
+  wrapAroundWorld(){
+    var cw = this.game.canvas.getAttribute("width");
+    var ch = this.game.canvas.getAttribute("height");
+    if(this.x < 0){
+      this.x = cw - this.x;
+    }else if(this.x > cw){
+      this.x = this.x - cw;
+    }
+    if(this.y < 0){
+      this.y = ch - this.y;
+    }else if(this.y > ch){
+      this.y = this.y - ch;
+    }
+  }
+
+  calculateNewAngle(){
     if(this.turningCCW){
       this.angle -= this.turnSpeed ;
     }
     if(this.turningCW){
       this.angle += this.turnSpeed ;
     }
+  }
 
+  calculateNewSpeeds(){
     if(this.accelerating ){
       var accX = Math.cos(this.angle)*this.acceleration;
       this.dx = this.dx + accX;
@@ -216,21 +214,13 @@ export default class Ship {
     var breakY = Math.sin(this.movementAngleRadians)*this.drag;
     this.dy = this.dy - breakY;
 
-
-    this.x += this.dx;
-    this.y += this.dy;
-
-    var cw = this.game.canvas.getAttribute("width");
-    var ch = this.game.canvas.getAttribute("height");
-    if(this.x < 0){
-      this.x = cw - this.x;
-    }else if(this.x > cw){
-      this.x = this.x - cw;
+    if(this.speed < 0.15){
+      this.dx = 0;
+      this.dy = 0;
     }
-    if(this.y < 0){
-      this.y = ch - this.y;
-    }else if(this.y > ch){
-      this.y = this.y - ch;
-    }
+  }
+
+  get speed() {
+    return Math.sqrt(Math.pow(this.dx,2)+Math.pow(this.dy,2));
   }
 }

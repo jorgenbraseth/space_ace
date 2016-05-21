@@ -1,7 +1,15 @@
 const BLOCK_SIZE = 10;
 
+var x;
+var y;
+
 export default class Armor {
 
+  constructor(ship, x,y){
+    this.x = x;
+    this.y = y;
+  }
+  
   get mass(){
     return 100;
   }
@@ -23,7 +31,10 @@ export default class Armor {
   }
 
   draw(screen){
+    screen.save();
+    screen.translate(this.x,this.y);
     screen.fillStyle = "#999999";
     screen.fillRect(0,0,BLOCK_SIZE,BLOCK_SIZE);
+    screen.restore();
   }
 }

@@ -18,9 +18,9 @@ export default class Game {
     this._keyControl = new KeyControl(this);
 
     this.renderer = new Renderer(this);
-    
+
   }
-  
+
   get keyControl(){
     return this._keyControl;
   }
@@ -48,7 +48,10 @@ export default class Game {
   }
 
   draw(){
-    this.renderer.render(LAYERS.SHIPS);
+    this.renderer.render([
+      LAYERS.SHIPS,
+      LAYERS.OVER_SHIPS
+    ]);
   }
   run(){
     this.init();
@@ -60,5 +63,9 @@ export default class Game {
 
   }
 
-  
+  spawn(sprite, layer = "OVER_SHIPS"){
+    LAYERS.OVER_SHIPS.push(sprite);
+  }
+
+
 }

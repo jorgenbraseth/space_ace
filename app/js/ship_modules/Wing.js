@@ -1,10 +1,14 @@
 const BLOCK_SIZE = 10;
 
 var _isOnLeftSide;
+var x;
+var y;
 export default class Armor {
 
-  constructor(isOnLeftSide){
+  constructor(ship, isOnLeftSide,x,y){
     _isOnLeftSide = isOnLeftSide;
+    this.x = x;
+    this.y = y;
   }
   get mass(){
     return 15;
@@ -27,7 +31,12 @@ export default class Armor {
   }
 
   draw(screen){
+    screen.save();
+    screen.translate(this.x,this.y);
+
     screen.fillStyle = "#0066ff";
     screen.fillRect(0,0,BLOCK_SIZE,BLOCK_SIZE);
+
+    screen.restore();
   }
 }
