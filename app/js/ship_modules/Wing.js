@@ -1,33 +1,21 @@
+import ShipModule from "./ShipModule";
+
 const BLOCK_SIZE = 10;
 
+const MASS = 15;
+const ENGINE_POWER = 0;
+const TURN_POWER = 350;
+const COST = 5;
+const HITPOINTS = 10;
+
 var _isOnLeftSide;
-var x;
-var y;
-export default class Armor {
+
+
+export default class Armor extends ShipModule {
 
   constructor(ship, isOnLeftSide,x,y){
+    super(ship, x, y, MASS, ENGINE_POWER, TURN_POWER, COST, HITPOINTS);
     _isOnLeftSide = isOnLeftSide;
-    this.x = x;
-    this.y = y;
-  }
-  get mass(){
-    return 15;
-  }
-
-  get enginePower(){
-    return 0;
-  }
-
-  get turnPower(){
-    return 350;
-  }
-
-  get cost() {
-    return 5;
-  }
-
-  get hp(){
-    return 10;
   }
 
   draw(screen){

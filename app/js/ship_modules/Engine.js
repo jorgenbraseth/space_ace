@@ -1,33 +1,18 @@
+import ShipModule from "./ShipModule";
+
 const BLOCK_SIZE = 10;
 
-var x;
-var y;
 
-export default class Engine {
+const MASS = 5;
+const ENGINE_POWER = 100;
+const TURN_POWER = 5;
+const COST = 50;
+const HITPOINTS = 5;
+
+export default class Engine extends ShipModule {
 
   constructor(ship,x,y){
-    this.x = x;
-    this.y = y;
-  }
-
-  get mass(){
-    return 5;
-  }
-
-  get enginePower(){
-    return 150;
-  }
-
-  get turnPower(){
-    return 5;
-  }
-
-  get cost() {
-    return 50;
-  }
-
-  get hp(){
-    return 5;
+    super(ship, x, y, MASS, ENGINE_POWER, TURN_POWER, COST, HITPOINTS);
   }
 
   draw(screen){
