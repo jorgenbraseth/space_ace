@@ -1,6 +1,7 @@
 import Renderer from "./Renderer";
 import KeyControl from "./KeyControl";
 import Ship from "./Ship";
+import DummyShip from "./DummyShip";
 
 
 const LAYERS = {
@@ -29,6 +30,7 @@ export default class Game {
     this.globalTime = 0;
 
     LAYERS.SHIPS.push(new Ship(this));
+    LAYERS.SHIPS.push(new DummyShip(this));
   }
 
   tickLayer(sprites){
