@@ -36,15 +36,15 @@ export default class Game {
 
     const PLAYER1_SCHEMATIC = [
       "  GGG  ",
-      "GGSSSGG",
-      "WWWXWWW",
-      "SEEEEES"
+      " GWSWG ",
+      "SEWXWES",
+      "  EEE  "
     ];
 
     const AI_SCHEMATIC = [
-      "  SGGGS  ",
-      " SWWXWWS ",
-      "SEWSESWES"
+      "  SSSSS  ",
+      " SGWXWGS ",
+      "SEWWESWES"
     ];
 
     const PLAYER1_CONTROLS = {

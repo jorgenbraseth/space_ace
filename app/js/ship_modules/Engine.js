@@ -20,15 +20,29 @@ export default class Engine extends ShipModule {
     screen.save();
     screen.translate(this.x,this.y);
 
+
+    if(this.ship.accelerating){
+      screen.fillStyle = "#66ff66";
+      screen.beginPath();
+      screen.lineTo(0,0);
+      screen.lineTo(BLOCK_SIZE,0);
+      screen.lineTo(BLOCK_SIZE,BLOCK_SIZE/2);
+      screen.lineTo(BLOCK_SIZE/2,BLOCK_SIZE);
+      screen.lineTo(0,BLOCK_SIZE/2);
+      screen.closePath();
+      screen.fill();
+    }
+
     screen.fillStyle = "#00aa00";
     screen.beginPath();
     screen.lineTo(0,0);
     screen.lineTo(BLOCK_SIZE,0);
     screen.lineTo(BLOCK_SIZE,BLOCK_SIZE/2);
-    screen.lineTo(BLOCK_SIZE/2,BLOCK_SIZE);
+    screen.lineTo(BLOCK_SIZE/2,BLOCK_SIZE/3);
     screen.lineTo(0,BLOCK_SIZE/2);
     screen.closePath();
     screen.fill();
+
 
     screen.restore();
 

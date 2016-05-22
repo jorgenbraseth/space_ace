@@ -2,7 +2,7 @@ import Sprite from "../../Sprite"
 
 const DEGREE = (Math.PI/180);
 
-var x,y,gun;
+var _x,_y,gun;
 
 export default class Bullet extends Sprite {
 
@@ -10,8 +10,8 @@ export default class Bullet extends Sprite {
     super();
 
     this.gun = gun;
-    this.x = x;
-    this.y = y;
+    this._x = x;
+    this._y = y;
     this.speed = 6;
     this.angle = angle;
     this.age = 0;
@@ -24,8 +24,8 @@ export default class Bullet extends Sprite {
 
   tick() {
     this.age++;
-    this.x += this.dx;
-    this.y += this.dy;
+    this._x += this.dx;
+    this._y += this.dy;
 
     if(this.age > 100){
       this.die();
@@ -41,7 +41,7 @@ export default class Bullet extends Sprite {
   draw(screen){
 
     screen.save();
-    screen.translate(this.x,this.y);
+    screen.translate(this._x,this._y);
     screen.rotate(90*DEGREE);
     screen.rotate(this.angle);
 
@@ -63,15 +63,15 @@ export default class Bullet extends Sprite {
   wrapAroundWorld(){
     var cw = this.gun.game.canvas.getAttribute("width");
     var ch = this.gun.game.canvas.getAttribute("height");
-    if(this.x < 0){
-      this.x = cw - this.x;
-    }else if(this.x > cw){
-      this.x = this.x - cw;
+    if(this._x < 0){
+      this._x = cw - this.x;
+    }else if(this._x > cw){
+      this._x = this._x - cw;
     }
-    if(this.y < 0){
-      this.y = ch - this.y;
-    }else if(this.y > ch){
-      this.y = this.y - ch;
+    if(this._y < 0){
+      this._y = ch - this._y;
+    }else if(this._y > ch){
+      this._y = this._y - ch;
     }
   }
 
@@ -85,11 +85,11 @@ export default class Bullet extends Sprite {
   }
 
   get globalX(){
-    return this.x;
+    return this._x;
   }
 
   get globalY(){
-    return this.y;
+    return this._y;
   }
 
 
