@@ -26,9 +26,7 @@ export default class Engine extends ShipModule {
       screen.beginPath();
       screen.lineTo(0,0);
       screen.lineTo(BLOCK_SIZE,0);
-      screen.lineTo(BLOCK_SIZE,BLOCK_SIZE/2);
       screen.lineTo(BLOCK_SIZE/2,BLOCK_SIZE);
-      screen.lineTo(0,BLOCK_SIZE/2);
       screen.closePath();
       screen.fill();
     }

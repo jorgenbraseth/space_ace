@@ -15,15 +15,31 @@ const LAYERS = {
   UI:[]
 };
 
+const PLAYER1_CONTROLS = {
+  ACCELERATE: KEY_MAP.W,
+  TURN_CLOCKWISE: KEY_MAP.D,
+  TURN_COUNTERCLOCKWISE: KEY_MAP.S,
+  FIRE_PRIMARY: KEY_MAP.SPACE
+};
+
+const PLAYER2_CONTROLS = {
+  ACCELERATE: KEY_MAP.UP,
+  TURN_CLOCKWISE: KEY_MAP.RIGHT,
+  TURN_COUNTERCLOCKWISE: KEY_MAP.LEFT,
+  FIRE_PRIMARY: KEY_MAP.NUM_0
+};
+
 export default class Game {
 
-  constructor(canvas) {
+  constructor(canvas, p1_ships, p2_ships) {
     this.canvas = canvas;
     canvas.focus();
     this._keyControl = new KeyControl(this);
 
-    this.renderer = new Renderer(this);
+    this.p1_ships = p1_ships;
+    this.p2_ships = p2_ships;
 
+    this.renderer = new Renderer(this);
   }
 
   get keyControl(){
@@ -34,42 +50,45 @@ export default class Game {
     this.globalTime = 0;
 
 
-    const PLAYER1_SCHEMATIC = [
-      "  GGG  ",
-      " GWSWG ",
-      "SEWXWES",
-      "  EEE  "
-    ];
 
-    const PLAYER2_SCHEMATIC = [
-      "  SGS  ",
-      "SEWXWES",
-      "  G G  "
-    ];
 
     const AI_SCHEMATIC = [
       " WXG ",
       "  E "
     ];
 
-    const PLAYER1_CONTROLS = {
-      ACCELERATE: KEY_MAP.W,
-      TURN_CLOCKWISE: KEY_MAP.D,
-      TURN_COUNTERCLOCKWISE: KEY_MAP.S,
-      FIRE_PRIMARY: KEY_MAP.SPACE
-    };
 
-    const PLAYER2_CONTROLS = {
-      ACCELERATE: KEY_MAP.UP,
-      TURN_CLOCKWISE: KEY_MAP.RIGHT,
-      TURN_COUNTERCLOCKWISE: KEY_MAP.LEFT,
-      FIRE_PRIMARY: KEY_MAP.NUM_0
-    };
 
-    LAYERS.SHIPS.push(new ControllableShip(this, 55,55,0,PLAYER1_SCHEMATIC, PLAYER1_CONTROLS));
-    LAYERS.SHIPS.push(new ControllableShip(this, 455,455,0,PLAYER2_SCHEMATIC, PLAYER2_CONTROLS));
+
     LAYERS.SHIPS.push(new DummyShip(this,Math.floor(Math.random()*2000),Math.floor(Math.random()*2000),0,AI_SCHEMATIC));
     LAYERS.SHIPS.push(new DummyShip(this,Math.floor(Math.random()*2000),Math.floor(Math.random()*2000),0,AI_SCHEMATIC));
+
+    this.loadNextP1Ship();
+    this.loadNextP2Ship();
+  }
+
+  loadNextP1Ship(){
+    this.p1 = new ControllableShip(
+      this,
+      Math.floor(Math.random()*this.renderer.screenWidth),
+      Math.floor(Math.random()*this.renderer.screenHeight),
+      0,
+      this.p1_ships.pop(),
+      PLAYER1_CONTROLS
+    );
+
+    LAYERS.SHIPS.push(this.p1);
+  }
+  loadNextP2Ship(){
+    this.p2 = new ControllableShip(
+      this,
+      Math.floor(Math.random()*this.renderer.screenWidth),
+      Math.floor(Math.random()*this.renderer.screenHeight),
+      0,
+      this.p2_ships.pop(),
+      PLAYER2_CONTROLS
+    );
+    LAYERS.SHIPS.push(this.p2);
   }
 
   tickLayer(sprites){
