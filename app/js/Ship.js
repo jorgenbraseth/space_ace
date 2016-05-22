@@ -8,11 +8,11 @@ import Gun from "./ship_modules/gun/Gun";
 
 import {DEGREE, BLOCK_SIZE} from "./Constants"
 
-// var _x,_y,_dx,_dy,_width,_height, _angle,_pivotX,_pivotY;
-// var _enginePower, _turnPower, _mass, _cost;
-//
-// var _turningCW, _turningCCW, _accelerating;
-// var _modules;
+var _x,_y,_dx,_dy,_width,_height, _angle,_pivotX,_pivotY;
+var _enginePower, _turnPower, _mass, _cost;
+
+var _turningCW, _turningCCW, _accelerating, _firingPrimary;
+var _modules;
 //
 
 export default class Ship extends Sprite {
@@ -25,6 +25,8 @@ export default class Ship extends Sprite {
     this._y = y;
     this._dx = 0;
     this._dy = 0;
+
+    this._firingPrimary = false;
 
     this._accelerating = false;
 
@@ -216,9 +218,7 @@ export default class Ship extends Sprite {
     return [].concat.apply([], this._modules).filter((p)=> p != undefined);
   }
 
-  collide(collidedWith){
-    throw "Unimplemented collide in class "+this.constructor.name;
-  }
+  collide(collidedWith){}
 
   get movementAngleRadians(){
     var radians = Math.atan2(this._dy,this._dx);

@@ -1,28 +1,23 @@
 import Ship from "./Ship"
-import {KEY_MAP} from "./Keys"
-
-const SHIP_SCHEMATIC = [
-  "  GGG  ",
-  "GGSSSGG",
-  "WWWXWWW",
-  "SEEEEES"
-];
 
 export default class ControllableShip extends Ship {
 
-  constructor(game) {
-    super(game, 55,55,0, SHIP_SCHEMATIC);
+  constructor(game, x, y , angle, schematic, keyBindings) {
+    super(game, x,y,angle, schematic);
+    this.keyBindings = keyBindings;
 
-    this.bindKeys();
+    this.bindKeys(keyBindings);
   }
 
-  bindKeys() {
-    this.game.keyControl.onKeyDown(KEY_MAP.ACCELERATE, ()=> this.accelerating = true);
-    this.game.keyControl.onKeyDown(KEY_MAP.TURN_CLOCKWISE, ()=> this._turningCW = true);
-    this.game.keyControl.onKeyDown(KEY_MAP.TURN_COUNTERCLOCKWISE, ()=> this._turningCCW = true);
+  bindKeys(keyBindings) {
+    this.game.keyControl.onKeyDown(keyBindings.ACCELERATE, ()=> this.accelerating = true);
+    this.game.keyControl.onKeyDown(keyBindings.TURN_CLOCKWISE, ()=> this._turningCW = true);
+    this.game.keyControl.onKeyDown(keyBindings.TURN_COUNTERCLOCKWISE, ()=> this._turningCCW = true);
+    this.game.keyControl.onKeyDown(keyBindings.FIRE_PRIMARY, ()=> this._firingPrimary = true);
 
-    this.game.keyControl.onKeyUp(KEY_MAP.ACCELERATE, ()=> this.accelerating = false);
-    this.game.keyControl.onKeyUp(KEY_MAP.TURN_CLOCKWISE, ()=> this._turningCW = false);
-    this.game.keyControl.onKeyUp(KEY_MAP.TURN_COUNTERCLOCKWISE, ()=> this._turningCCW = false);
+    this.game.keyControl.onKeyUp(keyBindings.ACCELERATE, ()=> this.accelerating = false);
+    this.game.keyControl.onKeyUp(keyBindings.TURN_CLOCKWISE, ()=> this._turningCW = false);
+    this.game.keyControl.onKeyUp(keyBindings.TURN_COUNTERCLOCKWISE, ()=> this._turningCCW = false);
+    this.game.keyControl.onKeyUp(keyBindings.FIRE_PRIMARY, ()=> this._firingPrimary = false);
   }
 }

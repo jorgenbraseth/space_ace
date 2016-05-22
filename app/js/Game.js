@@ -5,6 +5,7 @@ import DummyShip from "./DummyShip";
 
 import { isSpritesColliding } from "./Utils"
 
+import {KEY_MAP} from "./Keys";
 
 const LAYERS = {
   BACKGROUND:[],
@@ -32,8 +33,29 @@ export default class Game {
   init(){
     this.globalTime = 0;
 
-    LAYERS.SHIPS.push(new ControllableShip(this));
-    LAYERS.SHIPS.push(new DummyShip(this));
+
+    const SHIP_SCHEMATIC = [
+      "  GGG  ",
+      "GGSSSGG",
+      "WWWXWWW",
+      "SEEEEES"
+    ];
+
+    const AI_SCHEMATIC = [
+      "SGS",
+      "WXW",
+      " E "
+    ];
+
+    const controls = {
+      ACCELERATE: KEY_MAP.W,
+      TURN_CLOCKWISE: KEY_MAP.D,
+      TURN_COUNTERCLOCKWISE: KEY_MAP.S,
+      FIRE_PRIMARY: KEY_MAP.SPACE
+    };
+
+    LAYERS.SHIPS.push(new ControllableShip(this, 55,55,0,SHIP_SCHEMATIC, controls));
+    LAYERS.SHIPS.push(new DummyShip(this,300,300,0,AI_SCHEMATIC));
   }
 
   tickLayer(sprites){

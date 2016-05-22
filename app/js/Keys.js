@@ -1,7 +1,7 @@
 export const KEY_MAP = {
   SHIFT: 16, //SHIFT KEY,
   SPACE: 32, //SHIFT KEY,
-  ACCELERATE: 87, //W
-  TURN_COUNTERCLOCKWISE: 65, //S
-  TURN_CLOCKWISE: 68 //D,
+  W: 87,
+  S: 65,
+  D: 68
 };

@@ -20,10 +20,6 @@ export default class Gun extends ShipModule {
 
     this.firingRate = 15;
     this.timeToNextFire = 0;
-
-    this.shooting = false;
-    this.game.keyControl.onKeyDown(KEY_MAP.SPACE, ()=>this.shooting = true);
-    this.game.keyControl.onKeyUp(KEY_MAP.SPACE, ()=>this.shooting = false);
   }
 
   draw(screen){
@@ -52,7 +48,7 @@ export default class Gun extends ShipModule {
   }
 
   tick(){
-    if(this.shooting && this.timeToNextFire-- == 0){
+    if(this.ship._firingPrimary && this.timeToNextFire-- == 0){
       this.timeToNextFire = this.firingRate;
       this.game.spawn(new Bullet(this, ...this.worldPos, this.ship.angle),"SHOTS");
     }
