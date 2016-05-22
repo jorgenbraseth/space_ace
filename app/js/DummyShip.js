@@ -12,6 +12,20 @@ export default class DummyShip extends Ship {
     this.accelerating = true;
     this._firingPrimary = true;
 
+    this.age = Math.floor(Math.random()*1000);
+  }
+
+  tick(){
+    this.age++;
+
+    if(this.age % 128 == 0){
+      this._turningCCW = !this._turningCCW;
+    }
+    if(this.age % 200 == 0){
+      this._turningCW = !this._turningCW;
+    }
+
+    super.tick();
   }
 
 }

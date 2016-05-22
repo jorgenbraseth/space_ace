@@ -63,7 +63,8 @@ export default class Game {
 
     LAYERS.SHIPS.push(new ControllableShip(this, 55,55,0,PLAYER1_SCHEMATIC, PLAYER1_CONTROLS));
     LAYERS.SHIPS.push(new ControllableShip(this, 455,455,0,PLAYER2_SCHEMATIC, PLAYER2_CONTROLS));
-    // LAYERS.SHIPS.push(new DummyShip(this,300,300,0,PLAYER2_SCHEMATIC));
+    LAYERS.SHIPS.push(new DummyShip(this,Math.floor(Math.random()*2000),Math.floor(Math.random()*2000),0,PLAYER1_SCHEMATIC));
+    LAYERS.SHIPS.push(new DummyShip(this,Math.floor(Math.random()*2000),Math.floor(Math.random()*2000),0,PLAYER1_SCHEMATIC));
   }
 
   tickLayer(sprites){
