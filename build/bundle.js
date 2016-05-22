@@ -57,12 +57,25 @@
 	
 	var _Game2 = _interopRequireDefault(_Game);
 	
+	var _ShipPicker = __webpack_require__(22);
+	
+	var _ShipPicker2 = _interopRequireDefault(_ShipPicker);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	var canvas = document.getElementById('game');
 	
-	var game = new _Game2.default(canvas);
-	game.run();
+	var SCHEMS = [["G G", "EXW"], ["  GGG  ", " GWSWG ", "SEWXWES", "  EEE  "], ["  G", " GGG", "GGGGG", "WWXWW  ", "EEEEE  "], ["     SSS        ", "  SSSGGGSSS     ", " SGGGGGGGGGS    ", "SWWGGGGGGGWWS   ", "SWWWWWXWWWWWS   ", "SWW WWWWW WWS   ", "EEWSSWWWSSWEE   ", "  EEESSSEEE     ", "     EEE        "]];
+	
+	new _ShipPicker2.default(canvas, SCHEMS, "Select ship for Player 1").pickShips(function (schem) {
+	  var s1 = schem;
+	  new _ShipPicker2.default(canvas, SCHEMS, "Select ship for Player 2").pickShips(function (schem2) {
+	    var s2 = schem2;
+	
+	    var game = new _Game2.default(canvas, [s1], [s2]);
+	    game.run();
+	  });
+	});
 
 /***/ },
 /* 2 */
@@ -108,13 +121,30 @@
 	  UI: []
 	};
 	
+	var PLAYER1_CONTROLS = {
+	  ACCELERATE: _Keys.KEY_MAP.W,
+	  TURN_CLOCKWISE: _Keys.KEY_MAP.D,
+	  TURN_COUNTERCLOCKWISE: _Keys.KEY_MAP.S,
+	  FIRE_PRIMARY: _Keys.KEY_MAP.SPACE
+	};
+	
+	var PLAYER2_CONTROLS = {
+	  ACCELERATE: _Keys.KEY_MAP.UP,
+	  TURN_CLOCKWISE: _Keys.KEY_MAP.RIGHT,
+	  TURN_COUNTERCLOCKWISE: _Keys.KEY_MAP.LEFT,
+	  FIRE_PRIMARY: _Keys.KEY_MAP.NUM_0
+	};
+	
 	var Game = function () {
-	  function Game(canvas) {
+	  function Game(canvas, p1_ships, p2_ships) {
 	    _classCallCheck(this, Game);
 	
 	    this.canvas = canvas;
 	    canvas.focus();
 	    this._keyControl = new _KeyControl2.default(this);
+	
+	    this.p1_ships = p1_ships;
+	    this.p2_ships = p2_ships;
 	
 	    this.renderer = new _Renderer2.default(this);
 	  }
@@ -124,30 +154,26 @@
 	    value: function init() {
 	      this.globalTime = 0;
 	
-	      var PLAYER1_SCHEMATIC = ["  GGG  ", " GWSWG ", "SEWXWES", "  EEE  "];
-	
-	      var PLAYER2_SCHEMATIC = ["  SGS  ", "SEWXWES", "  G G  "];
-	
 	      var AI_SCHEMATIC = [" WXG ", "  E "];
 	
-	      var PLAYER1_CONTROLS = {
-	        ACCELERATE: _Keys.KEY_MAP.W,
-	        TURN_CLOCKWISE: _Keys.KEY_MAP.D,
-	        TURN_COUNTERCLOCKWISE: _Keys.KEY_MAP.S,
-	        FIRE_PRIMARY: _Keys.KEY_MAP.SPACE
-	      };
+	      // LAYERS.SHIPS.push(new DummyShip(this,Math.floor(Math.random()*2000),Math.floor(Math.random()*2000),0,AI_SCHEMATIC));
+	      // LAYERS.SHIPS.push(new DummyShip(this,Math.floor(Math.random()*2000),Math.floor(Math.random()*2000),0,AI_SCHEMATIC));
 	
-	      var PLAYER2_CONTROLS = {
-	        ACCELERATE: _Keys.KEY_MAP.UP,
-	        TURN_CLOCKWISE: _Keys.KEY_MAP.RIGHT,
-	        TURN_COUNTERCLOCKWISE: _Keys.KEY_MAP.LEFT,
-	        FIRE_PRIMARY: _Keys.KEY_MAP.NUM_0
-	      };
+	      this.loadNextP1Ship();
+	      this.loadNextP2Ship();
+	    }
+	  }, {
+	    key: "loadNextP1Ship",
+	    value: function loadNextP1Ship() {
+	      this.p1 = new _ControllableShip2.default(this, Math.floor(Math.random() * this.renderer.screenWidth), Math.floor(Math.random() * this.renderer.screenHeight), 0, this.p1_ships.pop(), PLAYER1_CONTROLS);
 	
-	      LAYERS.SHIPS.push(new _ControllableShip2.default(this, 55, 55, 0, PLAYER1_SCHEMATIC, PLAYER1_CONTROLS));
-	      LAYERS.SHIPS.push(new _ControllableShip2.default(this, 455, 455, 0, PLAYER2_SCHEMATIC, PLAYER2_CONTROLS));
-	      LAYERS.SHIPS.push(new _DummyShip2.default(this, Math.floor(Math.random() * 2000), Math.floor(Math.random() * 2000), 0, AI_SCHEMATIC));
-	      LAYERS.SHIPS.push(new _DummyShip2.default(this, Math.floor(Math.random() * 2000), Math.floor(Math.random() * 2000), 0, AI_SCHEMATIC));
+	      LAYERS.SHIPS.push(this.p1);
+	    }
+	  }, {
+	    key: "loadNextP2Ship",
+	    value: function loadNextP2Ship() {
+	      this.p2 = new _ControllableShip2.default(this, Math.floor(Math.random() * this.renderer.screenWidth), Math.floor(Math.random() * this.renderer.screenHeight), 0, this.p2_ships.pop(), PLAYER2_CONTROLS);
+	      LAYERS.SHIPS.push(this.p2);
 	    }
 	  }, {
 	    key: "tickLayer",
@@ -214,14 +240,14 @@
 	      setInterval(function () {
 	        this.tick();
 	        this.draw();
-	      }.bind(this), 1000 / 60);
+	      }.bind(this), 1000 / 60); //TODO: replace with window.requestAnimationFrame(callback) ?
 	    }
 	  }, {
 	    key: "spawn",
 	    value: function spawn(sprite) {
 	      var layer = arguments.length <= 1 || arguments[1] === undefined ? "SHOTS" : arguments[1];
 	
-	      LAYERS.SHOTS.push(sprite);
+	      LAYERS[layer].push(sprite);
 	    }
 	  }, {
 	    key: "keyControl",
@@ -248,8 +274,6 @@
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	var TOOLBAR_HEIGHT = 120;
 	
 	var Renderer = function () {
 	  function Renderer(game) {
@@ -487,7 +511,8 @@
 	
 	var _turningCW, _turningCCW, _accelerating, _firingPrimary;
 	var _modules;
-	//
+	
+	var DRAW_BOUNDING_BOX = false;
 	
 	var Ship = function (_Sprite) {
 	  _inherits(Ship, _Sprite);
@@ -497,7 +522,10 @@
 	
 	    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Ship).call(this));
 	
-	    _this.schematic = schematic;
+	    _this.schematic = schematic.filter(function (row) {
+	      return !row.match(/^\s*$/);
+	    });
+	
 	    _this.game = game;
 	    _this._x = x;
 	    _this._y = y;
@@ -543,6 +571,7 @@
 	        var partsRow = [];
 	        this._modules.push(partsRow);
 	        var positions = this.schematic[row].split("");
+	
 	        for (var pos = 0; pos < positions.length; pos++) {
 	          var x = pos * _Constants.BLOCK_SIZE;
 	
@@ -652,7 +681,9 @@
 	      }
 	      screen.restore();
 	
-	      // this.drawBoundingBox(screen);
+	      if (DRAW_BOUNDING_BOX) {
+	        this.drawBoundingBox(screen);
+	      }
 	    }
 	  }, {
 	    key: "collide",
@@ -724,7 +755,7 @@
 	      var breakY = Math.sin(this.movementAngleRadians) * this.drag;
 	      this._dy = this._dy - breakY;
 	
-	      if (this.speed < 0.15) {
+	      if (this.speed < 0.4 && !this.accelerating) {
 	        this._dx = 0;
 	        this._dy = 0;
 	      }
@@ -834,7 +865,7 @@
 	  }, {
 	    key: "physicsDrag",
 	    get: function get() {
-	      var fluidDensity = 0.5;
+	      var fluidDensity = 0.2;
 	      var frontalArea = this.mass;
 	      var speed = Math.sqrt(Math.pow(this._dx, 2) + Math.pow(this._dy, 2));
 	      var dragForce = 0.05 * fluidDensity * frontalArea * Math.pow(speed, 2);
@@ -849,7 +880,7 @@
 	  }, {
 	    key: "turnSpeed",
 	    get: function get() {
-	      return this.turnPower / this.mass * _Constants.DEGREE;
+	      return Math.pow(this.turnPower, 2) / Math.pow(this.mass, 2);
 	    }
 	  }, {
 	    key: "angle",
@@ -958,6 +989,7 @@
 	});
 	exports.boundingBox = boundingBox;
 	exports.isSpritesColliding = isSpritesColliding;
+	exports.isPointInSprite = isPointInSprite;
 	
 	var _sat = __webpack_require__(9);
 	
@@ -994,6 +1026,13 @@
 	  var bb2 = boundingBox(s2);
 	
 	  return _sat2.default.testPolygonPolygon(bb1, bb2);
+	}
+	
+	function isPointInSprite(x, y, sprite) {
+	  var bb = boundingBox(sprite);
+	  var point = new V(x, y);
+	
+	  return _sat2.default.pointInPolygon(point, bb);
 	}
 
 /***/ },
@@ -2035,7 +2074,7 @@
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 	
 	var MASS = 5;
-	var ENGINE_POWER = 100;
+	var ENGINE_POWER = 25;
 	var TURN_POWER = 5;
 	var COST = 50;
 	var HITPOINTS = 5;
@@ -2061,9 +2100,7 @@
 	        screen.beginPath();
 	        screen.lineTo(0, 0);
 	        screen.lineTo(_Constants.BLOCK_SIZE, 0);
-	        screen.lineTo(_Constants.BLOCK_SIZE, _Constants.BLOCK_SIZE / 2);
 	        screen.lineTo(_Constants.BLOCK_SIZE / 2, _Constants.BLOCK_SIZE);
-	        screen.lineTo(0, _Constants.BLOCK_SIZE / 2);
 	        screen.closePath();
 	        screen.fill();
 	      }
@@ -2079,10 +2116,6 @@
 	      screen.fill();
 	
 	      screen.restore();
-	
-	      // var newScreen = screen.canvas.getContext('2d');
-	      // newScreen.restore();
-	      // this.drawBoundingBox(newScreen);
 	    }
 	  }]);
 	
@@ -2293,9 +2326,9 @@
 	var x;
 	var y;
 	
-	var MASS = 1;
-	var ENGINE_POWER = 1;
-	var TURN_POWER = 5;
+	var MASS = 5;
+	var ENGINE_POWER = 0;
+	var TURN_POWER = 0;
 	var COST = 0;
 	var HITPOINTS = 5;
 	var POWER_GENERATION = 1;
@@ -2364,7 +2397,7 @@
 	
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 	
-	var MASS = 100;
+	var MASS = 300;
 	var ENGINE_POWER = 0;
 	var TURN_POWER = 0;
 	var COST = 5;
@@ -2422,9 +2455,9 @@
 	
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 	
-	var MASS = 15;
+	var MASS = 50;
 	var ENGINE_POWER = 0;
-	var TURN_POWER = 350;
+	var TURN_POWER = 35;
 	var COST = 5;
 	var HITPOINTS = 10;
 	var POWER_GENERATION = 0;
@@ -2493,7 +2526,7 @@
 	
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 	
-	var MASS = 25;
+	var MASS = 50;
 	var ENGINE_POWER = 0;
 	var TURN_POWER = 0;
 	var COST = 25;
@@ -2789,6 +2822,231 @@
 	  NUM_0: 96
 	
 	};
+
+/***/ },
+/* 22 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _PickableShip = __webpack_require__(23);
+	
+	var _PickableShip2 = _interopRequireDefault(_PickableShip);
+	
+	var _Constants = __webpack_require__(14);
+	
+	var _Utils = __webpack_require__(8);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var LAYERS = {
+	  SHIPS: [],
+	  UI: []
+	};
+	
+	var PLAYER2_SCHEMATIC = ["  SGS  ", "SEWXWES", "  G G  "];
+	
+	var _renderLoop;
+	var canvas;
+	var _pickedShip;
+	
+	var ShipPicker = function () {
+	  function ShipPicker(canvas, schems, title) {
+	    _classCallCheck(this, ShipPicker);
+	
+	    this.schems = schems;
+	    this.canvas = canvas;
+	    this.title = title;
+	    canvas.style.cursor = "auto";
+	    canvas.focus();
+	
+	    this.screen = canvas.getContext('2d');
+	    this.screenWidth = canvas.getAttribute("width");
+	    this.screenHeight = canvas.getAttribute("height");
+	
+	    this.init();
+	  }
+	
+	  _createClass(ShipPicker, [{
+	    key: "init",
+	    value: function init() {
+	      var _this = this;
+	
+	      this.ships = [];
+	      var xPos = 300;
+	      var placed = 0;
+	      this.schems.forEach(function (schem) {
+	        _this.ships.push(new _PickableShip2.default(_this, xPos, Math.floor(placed++ / 4) * 150 + 150, -90 * _Constants.DEGREE, schem));
+	        xPos = xPos % 800;
+	        xPos += 200;
+	      });
+	
+	      this.canvas.onmousemove = this.mouseMove.bind(this);
+	      this.canvas.onclick = this.click.bind(this);
+	    }
+	  }, {
+	    key: "click",
+	    value: function click(e) {
+	      var _this2 = this;
+	
+	      var x = e.offsetX;
+	      var y = e.offsetY;
+	      this.ships.forEach(function (ship) {
+	        if ((0, _Utils.isPointInSprite)(x, y, ship)) {
+	          _this2._pickedShip = ship.schematic;
+	        }
+	      });
+	    }
+	  }, {
+	    key: "mouseMove",
+	    value: function mouseMove(e) {
+	      var x = e.offsetX;
+	      var y = e.offsetY;
+	      var overClickable = false;
+	      this.ships.forEach(function (ship) {
+	        var highlighted = (0, _Utils.isPointInSprite)(x, y, ship);
+	        ship.highlighted = highlighted;
+	
+	        overClickable = overClickable || highlighted;
+	      });
+	
+	      if (overClickable) {
+	        this.canvas.style.cursor = "pointer";
+	      } else {
+	        this.canvas.style.cursor = "auto";
+	      }
+	    }
+	  }, {
+	    key: "tickLayer",
+	    value: function tickLayer(sprites) {
+	      sprites.forEach(function (s) {
+	        return s.tick();
+	      });
+	    }
+	  }, {
+	    key: "tick",
+	    value: function tick() {
+	      this.globalTime++;
+	
+	      this.tickLayer(LAYERS.SHIPS);
+	      this.tickLayer(LAYERS.UI);
+	    }
+	  }, {
+	    key: "draw",
+	    value: function draw() {
+	      var _this3 = this;
+	
+	      var s = this.screen;
+	      s.save();
+	      s.fillStyle = "#eeeeee";
+	      s.fillRect(0, 0, this.screenWidth, this.screenHeight);
+	
+	      s.fillStyle = "#000000";
+	      s.textAlign = "center";
+	      s.font = "48px serif";
+	      s.fillText(this.title, this.screenWidth / 2, 60);
+	
+	      this.ships.forEach(function (s) {
+	        s.draw(_this3.screen);
+	      });
+	      s.restore();
+	    }
+	  }, {
+	    key: "waitForPick",
+	    value: function waitForPick(shipPickedCallback) {
+	      var _this4 = this;
+	
+	      if (this._pickedShip == undefined) {
+	        setTimeout(function () {
+	          _this4.waitForPick(shipPickedCallback);
+	        }, 100);
+	      } else {
+	        clearInterval(_renderLoop);
+	        shipPickedCallback(this._pickedShip);
+	      }
+	    }
+	  }, {
+	    key: "pickShips",
+	    value: function pickShips(shipPickedCallback) {
+	      this.run();
+	      this.waitForPick(shipPickedCallback);
+	    }
+	  }, {
+	    key: "run",
+	    value: function run() {
+	      this.init();
+	
+	      _renderLoop = setInterval(function () {
+	        this.tick();
+	        this.draw();
+	      }.bind(this), 1000 / 60);
+	    }
+	  }]);
+	
+	  return ShipPicker;
+	}();
+	
+	exports.default = ShipPicker;
+
+/***/ },
+/* 23 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
+	
+	var _Ship2 = __webpack_require__(6);
+	
+	var _Ship3 = _interopRequireDefault(_Ship2);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var PickableShip = function (_Ship) {
+	  _inherits(PickableShip, _Ship);
+	
+	  function PickableShip(game, x, y, angle, schematic) {
+	    _classCallCheck(this, PickableShip);
+	
+	    return _possibleConstructorReturn(this, Object.getPrototypeOf(PickableShip).call(this, game, x, y, angle, schematic));
+	  }
+	
+	  _createClass(PickableShip, [{
+	    key: "draw",
+	    value: function draw(screen) {
+	      if (this.highlighted) {
+	        screen.fillStyle = "rgba(0,0,0,0.1)";
+	        screen.fillRect(this.x - this.pivotX - 5, this.y - this.pivotY - 5, this.width + 10, this.height + 10);
+	      }
+	
+	      _get(Object.getPrototypeOf(PickableShip.prototype), "draw", this).call(this, screen);
+	    }
+	  }]);
+	
+	  return PickableShip;
+	}(_Ship3.default);
+	
+	exports.default = PickableShip;
 
 /***/ }
 /******/ ]);
