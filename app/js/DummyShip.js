@@ -120,12 +120,12 @@ export default class DummyShip {
     }
     screen.restore();
 
-    this.drawBoundingBox(screen);
+    // this.drawBoundingBox(screen);
 
   }
 
   collide(collidedWith){
-    console.log(this.constructor.name + " collided with " + collidedWith.constructor.name);
+    // console.log(this.constructor.name + " collided with " + collidedWith.constructor.name);
   }
 
   drawBoundingBox(screen){

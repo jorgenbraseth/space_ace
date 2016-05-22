@@ -15,10 +15,10 @@
   "license": "ISC",
   "private": true,
   "dependencies": {
-    "connect": "^3.4.0",
     "sat": "^0.5.0",
-    "serve-static": "^1.10.1",
-    "source-map-support": "0.3.2"
+    "source-map-support": "0.3.2",
+    "connect": "^3.4.0",
+    "serve-static": "^1.10.1"
   },
   "devDependencies": {
     "babel-core": "^6.0.0",

@@ -19,7 +19,7 @@ const SHIP_SCHEMATIC = [
   "SEEEEES"
 ];
 
-export default class Ship extends Sprite {
+export default class ControllableShip extends Sprite {
 
   constructor(game) {
     super();
@@ -179,8 +179,6 @@ export default class Ship extends Sprite {
       }
     }
 
-    console.log([lowestX, highestX]);
-
     this._width = (highestX-lowestX+1)*BLOCK_SIZE;
     this._height = (highestY-lowestY+1)*BLOCK_SIZE;
   }
@@ -215,7 +213,7 @@ export default class Ship extends Sprite {
     }
     screen.restore();
 
-    this.drawBoundingBox(screen);
+    // this.drawBoundingBox(screen);
   }
 
   get modules(){
@@ -223,7 +221,7 @@ export default class Ship extends Sprite {
   }
 
   collide(collidedWith){
-    console.log(this.constructor.name + " collided with " + collidedWith.constructor.name);
+    // console.log(this.constructor.name + " collided with " + collidedWith.constructor.name);
   }
 
   get movementAngleRadians(){

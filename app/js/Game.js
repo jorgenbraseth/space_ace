@@ -1,6 +1,6 @@
 import Renderer from "./Renderer";
 import KeyControl from "./KeyControl";
-import Ship from "./Ship";
+import Ship from "./ControllableShip";
 import DummyShip from "./DummyShip";
 
 import { isSpritesColliding } from "./Utils"
