@@ -6,9 +6,9 @@ import {BLOCK_SIZE} from "../Constants"
 var x;
 var y;
 
-const MASS = 25;
-const ENGINE_POWER = 1;
-const TURN_POWER = 5;
+const MASS = 5;
+const ENGINE_POWER = 0;
+const TURN_POWER = 0;
 const COST = 0;
 const HITPOINTS = 5;
 const POWER_GENERATION = 1;

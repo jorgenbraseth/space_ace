@@ -32,7 +32,8 @@ const SCHEMS = [
     "EEWSSWWWSSWEE   ",
     "  EEESSSEEE     ",
     "     EEE        "
-  ]
+  ],
+  ["X"]
 ];
 
 new ShipPicker(canvas,SCHEMS,"Select ship for Player 1").pickShips((schem)=>{
