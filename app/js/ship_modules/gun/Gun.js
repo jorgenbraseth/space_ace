@@ -18,7 +18,7 @@ export default class Gun extends ShipModule {
   constructor(ship, x, y){
     super(ship, x, y, MASS, ENGINE_POWER, TURN_POWER, COST, HITPOINTS,POWER_GENERATION);
 
-    this.firingRate = 5;
+    this.firingRate = 15;
     this.timeToNextFire = 0;
 
     this.shooting = false;

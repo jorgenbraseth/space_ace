@@ -11,11 +11,11 @@ export default class Bullet extends Sprite {
     this.gun = gun;
     this.x = x;
     this.y = y;
-    this.speed = 3;
+    this.speed = 6;
     this.angle = angle;
     this.age = 0;
 
-    this.damage = 5;
+    this.damage = 2;
 
     this.dx = Math.cos(this.angle)*this.speed;
     this.dy = Math.sin(this.angle)*this.speed;
