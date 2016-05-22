@@ -41,10 +41,10 @@ export default class Game {
       "SEEEEES"
     ];
 
-    const PLAYER2_SCHEMATIC = [
-      "SGS",
-      "WXW",
-      " E "
+    const AI_SCHEMATIC = [
+      "  SGGGS  ",
+      " SWWXWWS ",
+      "SEWSESWES"
     ];
 
     const PLAYER1_CONTROLS = {
@@ -62,9 +62,9 @@ export default class Game {
     };
 
     LAYERS.SHIPS.push(new ControllableShip(this, 55,55,0,PLAYER1_SCHEMATIC, PLAYER1_CONTROLS));
-    LAYERS.SHIPS.push(new ControllableShip(this, 455,455,0,PLAYER2_SCHEMATIC, PLAYER2_CONTROLS));
-    LAYERS.SHIPS.push(new DummyShip(this,Math.floor(Math.random()*2000),Math.floor(Math.random()*2000),0,PLAYER1_SCHEMATIC));
-    LAYERS.SHIPS.push(new DummyShip(this,Math.floor(Math.random()*2000),Math.floor(Math.random()*2000),0,PLAYER1_SCHEMATIC));
+    LAYERS.SHIPS.push(new ControllableShip(this, 455,455,0,AI_SCHEMATIC, PLAYER2_CONTROLS));
+    LAYERS.SHIPS.push(new DummyShip(this,Math.floor(Math.random()*2000),Math.floor(Math.random()*2000),0,AI_SCHEMATIC));
+    LAYERS.SHIPS.push(new DummyShip(this,Math.floor(Math.random()*2000),Math.floor(Math.random()*2000),0,AI_SCHEMATIC));
   }
 
   tickLayer(sprites){
@@ -78,6 +78,10 @@ export default class Game {
     LAYERS.SHOTS.splice(i,1);
   }
 
+  removeShip(toRemove){
+    var i = LAYERS.SHIPS.indexOf(toRemove);
+    LAYERS.SHIPS.splice(i,1);
+  }
   handleCollisions(){
     LAYERS.SHIPS.forEach((ship)=>{
       LAYERS.SHOTS.forEach((shot)=>{

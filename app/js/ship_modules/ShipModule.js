@@ -99,7 +99,6 @@ export default class ShipModule extends Sprite {
   }
 
   die(){
-    console.log(this.constructor.name+" destroyed!");
     this.ship.removeModule(this);
   }
 }

@@ -34,4 +34,9 @@ export default class Core extends ShipModule {
 
     screen.restore();
   }
+
+  die(){
+    super.die();
+    this.ship.die();
+  }
 }

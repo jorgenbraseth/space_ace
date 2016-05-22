@@ -316,4 +316,9 @@ export default class Ship extends Sprite {
   get speed() {
     return Math.sqrt(Math.pow(this._dx,2)+Math.pow(this._dy,2));
   }
+  
+  die(){
+    console.log("Ship destroyed!");
+    this.game.removeShip(this);
+  }
 }
