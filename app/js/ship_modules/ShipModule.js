@@ -3,7 +3,7 @@ const V = SAT.Vector;
 
 import Sprite from "../Sprite"
 
-const BLOCK_SIZE = 10;
+import {BLOCK_SIZE} from "../Constants"
 
 var ship,game;
 var x,y,angle;

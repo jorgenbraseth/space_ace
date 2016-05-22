@@ -1,7 +1,7 @@
 
 import ShipModule from "./ShipModule";
 
-const BLOCK_SIZE = 10;
+import {BLOCK_SIZE} from "../Constants"
 
 var x;
 var y;

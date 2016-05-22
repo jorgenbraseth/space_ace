@@ -8,20 +8,16 @@ import Wing from "./ship_modules/Wing";
 import Gun from "./ship_modules/gun/Gun";
 
 import {KEY_MAP} from "./Keys"
-import {boundingBox} from "./Utils"
-
-const DEGREE = (Math.PI/180);
+import {DEGREE, BLOCK_SIZE} from "./Constants"
 
 
 
 const SHIP_SCHEMATIC = [
-  "GSG ",
-  "SWS ",
-  "SWS ",
-  "EXE"
+  "  GGG  ",
+  "GGSSSGG",
+  "WWWXWWW",
+  "SEEEEES"
 ];
-
-const BLOCK_SIZE = 10;
 
 export default class Ship extends Sprite {
 
@@ -138,6 +134,7 @@ export default class Ship extends Sprite {
     }
 
     this.recalculateAggregateProperties();
+    this.calculateWidthAndHeight();
   }
 
 
@@ -152,7 +149,7 @@ export default class Ship extends Sprite {
 
     this.modulesThatTick = allParts.filter((p)=>p.tick != undefined)
 
-    this.calculateWidthAndHeight();
+
   }
 
 

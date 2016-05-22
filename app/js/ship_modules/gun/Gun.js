@@ -1,13 +1,10 @@
-const BLOCK_SIZE = 10;
+import {BLOCK_SIZE} from "../../Constants"
 
 import ShipModule from "../ShipModule"
 import Bullet from "./Bullet"
 
 
 import {KEY_MAP} from "../../Keys"
-
-var x;
-var y;
 
 const MASS = 25;
 const ENGINE_POWER = 0;

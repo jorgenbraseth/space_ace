@@ -1,6 +1,6 @@
 import ShipModule from "./ShipModule";
 
-const BLOCK_SIZE = 10;
+import {BLOCK_SIZE} from "../Constants"
 
 const MASS = 100;
 const ENGINE_POWER = 0;

@@ -5,11 +5,7 @@ import Armor from "./ship_modules/Armor";
 import Wing from "./ship_modules/Wing";
 import Gun from "./ship_modules/gun/Gun";
 
-import {KEY_MAP} from "./Keys"
 import {boundingBox} from "./Utils"
-
-
-const DEGREE = (Math.PI/180);
 
 const SHIP_SCHEMATIC = [
   "SGS",
@@ -17,7 +13,7 @@ const SHIP_SCHEMATIC = [
   " E "
 ];
 
-const BLOCK_SIZE = 10;
+import {DEGREE, BLOCK_SIZE} from "./Constants"
 
 export default class DummyShip {
 
