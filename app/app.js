@@ -6,31 +6,32 @@ var canvas = document.getElementById('game');
 
 const SCHEMS = [
   [
+    "G G",
+    "EXW"
+  ],
+  [
     "  GGG  ",
     " GWSWG ",
     "SEWXWES",
     "  EEE  "
   ],
   [
-    "  SGS  ",
-    "SEGXGES",
-    "  WEW  "
+    "  G",
+    " GGG",
+    "GGGGG",
+    "WWXWW  ",
+    "EEEEE  "
   ],
   [
-    "G G",
-    "EXW"
-  ],
-  [
-    "SGGGS       ",
-    "SGXGS       ",
-    "SWWWS       ",
-    "SWEWS       ",
-    "SE ES       "
-  ],
-  [
-    "GGGGGGGGG",
-    "WWWWXWWWW",
-    "EEEEEEEEE"
+    "     SSS        ",
+    "  SSSGGGSSS     ",
+    " SGGGGGGGGGS    ",
+    "SWWGGGGGGGWWS   ",
+    "SWWWWWXWWWWWS   ",
+    "SWW WWWWW WWS   ",
+    "EEWSSWWWSSWEE   ",
+    "  EEESSSEEE     ",
+    "     EEE        "
   ]
 ];
 
