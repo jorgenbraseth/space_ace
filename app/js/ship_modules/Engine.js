@@ -33,8 +33,8 @@ export default class Engine extends ShipModule {
     screen.restore();
 
 
-    var newScreen = screen.canvas.getContext('2d');
-    newScreen.restore();
-    this.drawBoundingBox(newScreen);
+    // var newScreen = screen.canvas.getContext('2d');
+    // newScreen.restore();
+    // this.drawBoundingBox(newScreen);
   }
 }

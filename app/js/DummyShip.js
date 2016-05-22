@@ -58,13 +58,13 @@ export default class DummyShip {
   }
 
   loadParts(){
-    this.modules = [];
+    this._modules = [];
 
     for (var row = 0; row < SHIP_SCHEMATIC.length; row++) {
       var y = row*BLOCK_SIZE;
 
       var partsRow = [];
-      this.modules.push(partsRow);
+      this._modules.push(partsRow);
       var positions = SHIP_SCHEMATIC[row].split("");
       for (var pos = 0; pos < positions.length; pos++) {
         var x = pos*BLOCK_SIZE;
@@ -95,7 +95,7 @@ export default class DummyShip {
   }
 
   recalculateAggregateProperties(){
-    var allParts = [].concat.apply([], this.modules).filter((p)=> p != undefined);
+    var allParts = [].concat.apply([], this._modules).filter((p)=> p != undefined);
 
     this.mass = allParts.map((p)=>p.mass).reduce((a,b)=>a+b,0);
     this.enginePower = allParts.map((p)=>p.enginePower).reduce((a,b)=>a+b,0);
@@ -113,8 +113,8 @@ export default class DummyShip {
 
     screen.translate(-this.pivotX,-this.pivotY);
 
-    for (var row = 0; row < this.modules.length; row++) {
-      var positions = this.modules[row];
+    for (var row = 0; row < this._modules.length; row++) {
+      var positions = this._modules[row];
       for (var pos = 0; pos < positions.length; pos++) {
         var block = positions[pos];
         if(block != undefined){
@@ -171,6 +171,20 @@ export default class DummyShip {
 
   tickModules(){
     this.modulesThatTick.forEach((m)=>m.tick());
+  }
+
+  removeModule(moduleToRemove){
+    for (var y = 0; y < this._modules.length; y++) {
+      var row = this._modules[y];
+      for (var x = 0; x < row.length; x++) {
+        var module = row[x];
+
+        if(module === moduleToRemove){
+          this._modules[y][x] = undefined;
+          this.recalculateAggregateProperties();
+        }
+      }
+    }
   }
 
   tick() {
@@ -244,5 +258,9 @@ export default class DummyShip {
 
   get globalY(){
     return this.y
+  }
+
+  get modules(){
+    return [].concat.apply([], this._modules).filter((p)=> p != undefined);
   }
 }

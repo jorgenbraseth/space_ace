@@ -15,8 +15,10 @@ const DEGREE = (Math.PI/180);
 
 
 const SHIP_SCHEMATIC = [
-  "WS ",
-  "XE "
+  "GSG ",
+  "SWS ",
+  "SWS ",
+  "EXE"
 ];
 
 const BLOCK_SIZE = 10;
@@ -89,8 +91,6 @@ export default class Ship extends Sprite {
     }
 
   removeModule(moduleToRemove){
-    console.log("Removing " + moduleToRemove.constructor.name);
-
     for (var y = 0; y < this._modules.length; y++) {
       var row = this._modules[y];
       for (var x = 0; x < row.length; x++) {
@@ -142,15 +142,50 @@ export default class Ship extends Sprite {
 
 
 
-  recalculateAggregateProperties(){
+  recalculateAggregateProperties() {
     var allParts = this.modules;
 
-    this.mass = allParts.map((p)=>p.mass).reduce((a,b)=>a+b,0);
-    this.enginePower = allParts.map((p)=>p.enginePower).reduce((a,b)=>a+b,0);
-    this.turnPower = allParts.map((p)=>p.turnPower).reduce((a,b)=>a+b,0);
-    this.cost  = allParts.map((p)=>p.cost).reduce((a,b)=>a+b,0);
+    this.mass = allParts.map((p)=>p.mass).reduce((a, b)=>a + b, 0);
+    this.enginePower = allParts.map((p)=>p.enginePower).reduce((a, b)=>a + b, 0);
+    this.turnPower = allParts.map((p)=>p.turnPower).reduce((a, b)=>a + b, 0);
+    this.cost = allParts.map((p)=>p.cost).reduce((a, b)=>a + b, 0);
 
-    this.modulesThatTick = allParts.filter((p)=>p.tick != undefined )
+    this.modulesThatTick = allParts.filter((p)=>p.tick != undefined)
+
+    this.calculateWidthAndHeight();
+  }
+
+
+  calculateWidthAndHeight(){
+    var lowestX=1000;
+    var lowestY=1000;
+    var highestX=-1;
+    var highestY=-1;
+    for (var y = 0; y < this._modules.length; y++) {
+      var row = this._modules[y];
+      for (var x = 0; x < row.length; x++) {
+        var module = row[x];
+        if(module !== undefined){
+          if(x<lowestX){
+            lowestX = x;
+          }
+          if(x>highestX){
+            highestX = x;
+          }
+          if(y<lowestY){
+            lowestY = y;
+          }
+          if(y>highestY){
+            highestY = y;
+          }
+        }
+      }
+    }
+
+    console.log([lowestX, highestX]);
+
+    this._width = (highestX-lowestX+1)*BLOCK_SIZE;
+    this._height = (highestY-lowestY+1)*BLOCK_SIZE;
   }
 
   bindKeys() {

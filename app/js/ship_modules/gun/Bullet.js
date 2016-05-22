@@ -11,7 +11,7 @@ export default class Bullet extends Sprite {
     this.gun = gun;
     this.x = x;
     this.y = y;
-    this.speed = 0.1;
+    this.speed = 3;
     this.angle = angle;
     this.age = 0;
 
@@ -57,7 +57,6 @@ export default class Bullet extends Sprite {
     screen.fill();
 
     screen.restore();
-    this.drawBoundingBox(screen);
   }
 
   wrapAroundWorld(){
