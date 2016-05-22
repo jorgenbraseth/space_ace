@@ -29,6 +29,7 @@ export default class ShipModule extends Sprite {
     this._turnPower = turnPower;
     this._cost = cost;
     this._hitpoints = hp;
+    this._remainingHitpoints = hp;
     this._powerGeneration = powerGeneration;
   }
 
@@ -80,24 +81,6 @@ export default class ShipModule extends Sprite {
     return this.worldPos[1];
   }
 
-
-  // get collisionInfo(){
-  //   return {
-  //     worldPosCenter: this.worldPos,
-  //     width: BLOCK_SIZE,
-  //     height: BLOCK_SIZE,
-  //
-  //     transforms: [
-  //       {translate: [this.ship.x, this.ship.y]},
-  //       {rotate:this.ship.angle},
-  //       {translate: [this.x, this.y]}
-  //     ]
-  //
-  //   }
-  // }
-
-
-
   get worldPos(){
     const shipAngle = this.ship.angle+Math.PI/2;
     const shipCenterOffestX = this.x+BLOCK_SIZE/2 - this.ship.pivotX;
@@ -107,5 +90,17 @@ export default class ShipModule extends Sprite {
     const y = this.ship.y + Math.sin(shipAngle)*(shipCenterOffestX) + Math.cos(shipAngle)*shipCenterOffestY;
 
     return [x,y];
+  }
+
+  recieveDamage(dmg){
+    this._remainingHitpoints -= dmg;
+    if(this._remainingHitpoints <= 0){
+      this.die();
+    }
+  }
+
+  die(){
+    console.log(this.constructor.name+" destroyed!");
+    this.ship.removeModule(this);
   }
 }

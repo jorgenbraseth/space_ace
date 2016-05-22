@@ -15,8 +15,8 @@ const DEGREE = (Math.PI/180);
 
 
 const SHIP_SCHEMATIC = [
-  "WX ",
-  "SE "
+  "WS ",
+  "XE "
 ];
 
 const BLOCK_SIZE = 10;
@@ -87,6 +87,22 @@ export default class Ship extends Sprite {
   get pivotY(){
       return this._pivotY;
     }
+
+  removeModule(moduleToRemove){
+    console.log("Removing " + moduleToRemove.constructor.name);
+
+    for (var y = 0; y < this._modules.length; y++) {
+      var row = this._modules[y];
+      for (var x = 0; x < row.length; x++) {
+        var module = row[x];
+
+        if(module === moduleToRemove){
+          this._modules[y][x] = undefined;
+          this.recalculateAggregateProperties();
+        }
+      }
+    }
+  }
 
   loadParts(){
     this._modules = [];

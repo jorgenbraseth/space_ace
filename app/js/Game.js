@@ -53,9 +53,8 @@ export default class Game {
         if(isSpritesColliding(ship,shot) && shot.gun.ship != ship){
           ship.modules.forEach((module)=>{
             if(isSpritesColliding(module,shot)){
-              console.log(module);
               ship.collide(shot);
-              shot.collide(ship);
+              shot.collide(module);
             }
           });
         }

@@ -12,10 +12,10 @@ const POWER_GENERATION = 0;
 var _isOnLeftSide;
 
 
-export default class Armor extends ShipModule {
+export default class Wing extends ShipModule {
 
   constructor(ship, isOnLeftSide,x,y){
-    super(ship, x, y, MASS, ENGINE_POWER, TURN_POWER, COST, HITPOINTS,POWER_GENERATION);
+    super(ship, x, y, MASS, ENGINE_POWER, TURN_POWER, COST, HITPOINTS,POWER_GENERATION, BLOCK_SIZE, BLOCK_SIZE);
     _isOnLeftSide = isOnLeftSide;
   }
 

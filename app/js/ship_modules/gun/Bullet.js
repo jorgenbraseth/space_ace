@@ -15,6 +15,8 @@ export default class Bullet extends Sprite {
     this.angle = angle;
     this.age = 0;
 
+    this.damage = 5;
+
     this.dx = Math.cos(this.angle)*this.speed;
     this.dy = Math.sin(this.angle)*this.speed;
   }
@@ -97,7 +99,7 @@ export default class Bullet extends Sprite {
 
 
   collide(collidedWith){
+    collidedWith.recieveDamage(this.damage);
     this.die();
-    console.log("I collided!");
   }
 }
