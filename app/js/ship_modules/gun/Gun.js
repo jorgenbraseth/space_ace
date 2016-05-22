@@ -4,8 +4,6 @@ import ShipModule from "../ShipModule"
 import Bullet from "./Bullet"
 
 
-import {KEY_MAP} from "../../Keys"
-
 const MASS = 25;
 const ENGINE_POWER = 0;
 const TURN_POWER = 0;
@@ -18,7 +16,7 @@ export default class Gun extends ShipModule {
   constructor(ship, x, y){
     super(ship, x, y, MASS, ENGINE_POWER, TURN_POWER, COST, HITPOINTS,POWER_GENERATION);
 
-    this.firingRate = 15;
+    this.firingRate = 25;
     this.timeToNextFire = 0;
   }
 
@@ -44,11 +42,16 @@ export default class Gun extends ShipModule {
     screen.closePath();
     screen.fill();
 
+    screen.fillStyle = "#ffff00";
+    var maxWidth = this.width-1;
+    screen.fillRect(1,this.height-2,maxWidth*(1-this.timeToNextFire/this.firingRate),1);
+
     screen.restore();
   }
 
   tick(){
-    if(this.ship._firingPrimary && this.timeToNextFire-- == 0){
+    this.timeToNextFire = Math.max(this.timeToNextFire-1,0);
+    if(this.ship._firingPrimary && this.timeToNextFire <= 0){
       this.timeToNextFire = this.firingRate;
       this.game.spawn(new Bullet(this, ...this.worldPos, this.ship.angle),"SHOTS");
     }
