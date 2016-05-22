@@ -16,8 +16,8 @@ export default class Gun extends ShipModule {
   constructor(ship, x, y){
     super(ship, x, y, MASS, ENGINE_POWER, TURN_POWER, COST, HITPOINTS,POWER_GENERATION);
 
-    this.firingRate = 25;
-    this.timeToNextFire = 0;
+    this.timeToReload = 25;
+    this.reloadTimeLeft = 0;
   }
 
   draw(screen){
@@ -44,15 +44,15 @@ export default class Gun extends ShipModule {
 
     screen.fillStyle = "#ffff00";
     var maxWidth = this.width-1;
-    screen.fillRect(1,this.height-2,maxWidth*(1-this.timeToNextFire/this.firingRate),1);
+    screen.fillRect(1,this.height-2,maxWidth*(1-this.reloadTimeLeft/this.timeToReload),1);
 
     screen.restore();
   }
 
   tick(){
-    this.timeToNextFire = Math.max(this.timeToNextFire-1,0);
-    if(this.ship._firingPrimary && this.timeToNextFire <= 0){
-      this.timeToNextFire = this.firingRate;
+    this.reloadTimeLeft = Math.max(this.reloadTimeLeft-1,0);
+    if(this.ship._firingPrimary && this.reloadTimeLeft <= 0){
+      this.reloadTimeLeft = this.timeToReload;
       this.game.spawn(new Bullet(this, ...this.worldPos, this.ship.angle),"SHOTS");
     }
   }
