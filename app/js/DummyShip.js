@@ -5,7 +5,7 @@ import Ship from "./Ship"
 export default class DummyShip extends Ship {
 
   constructor(game, x, y, angle, schematic) {
-    super(game, 355, 355, 0, schematic);
+    super(game, x, y, angle, schematic);
 
     this._turningCCW = true;
     this._turningCW = false;

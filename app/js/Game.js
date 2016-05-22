@@ -34,28 +34,36 @@ export default class Game {
     this.globalTime = 0;
 
 
-    const SHIP_SCHEMATIC = [
+    const PLAYER1_SCHEMATIC = [
       "  GGG  ",
       "GGSSSGG",
       "WWWXWWW",
       "SEEEEES"
     ];
 
-    const AI_SCHEMATIC = [
+    const PLAYER2_SCHEMATIC = [
       "SGS",
       "WXW",
       " E "
     ];
 
-    const controls = {
+    const PLAYER1_CONTROLS = {
       ACCELERATE: KEY_MAP.W,
       TURN_CLOCKWISE: KEY_MAP.D,
       TURN_COUNTERCLOCKWISE: KEY_MAP.S,
       FIRE_PRIMARY: KEY_MAP.SPACE
     };
 
-    LAYERS.SHIPS.push(new ControllableShip(this, 55,55,0,SHIP_SCHEMATIC, controls));
-    LAYERS.SHIPS.push(new DummyShip(this,300,300,0,AI_SCHEMATIC));
+    const PLAYER2_CONTROLS = {
+      ACCELERATE: KEY_MAP.UP,
+      TURN_CLOCKWISE: KEY_MAP.RIGHT,
+      TURN_COUNTERCLOCKWISE: KEY_MAP.LEFT,
+      FIRE_PRIMARY: KEY_MAP.NUM_0
+    };
+
+    LAYERS.SHIPS.push(new ControllableShip(this, 55,55,0,PLAYER1_SCHEMATIC, PLAYER1_CONTROLS));
+    LAYERS.SHIPS.push(new ControllableShip(this, 455,455,0,PLAYER2_SCHEMATIC, PLAYER2_CONTROLS));
+    // LAYERS.SHIPS.push(new DummyShip(this,300,300,0,PLAYER2_SCHEMATIC));
   }
 
   tickLayer(sprites){
