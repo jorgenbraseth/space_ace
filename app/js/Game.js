@@ -41,10 +41,15 @@ export default class Game {
       "  EEE  "
     ];
 
+    const PLAYER2_SCHEMATIC = [
+      "  SGS  ",
+      "SEWXWES",
+      "  G G  "
+    ];
+
     const AI_SCHEMATIC = [
-      "  SSSSS  ",
-      " SGWXWGS ",
-      "SEWWESWES"
+      " WXG ",
+      "  E "
     ];
 
     const PLAYER1_CONTROLS = {
@@ -62,7 +67,7 @@ export default class Game {
     };
 
     LAYERS.SHIPS.push(new ControllableShip(this, 55,55,0,PLAYER1_SCHEMATIC, PLAYER1_CONTROLS));
-    LAYERS.SHIPS.push(new ControllableShip(this, 455,455,0,AI_SCHEMATIC, PLAYER2_CONTROLS));
+    LAYERS.SHIPS.push(new ControllableShip(this, 455,455,0,PLAYER2_SCHEMATIC, PLAYER2_CONTROLS));
     LAYERS.SHIPS.push(new DummyShip(this,Math.floor(Math.random()*2000),Math.floor(Math.random()*2000),0,AI_SCHEMATIC));
     LAYERS.SHIPS.push(new DummyShip(this,Math.floor(Math.random()*2000),Math.floor(Math.random()*2000),0,AI_SCHEMATIC));
   }
@@ -81,6 +86,10 @@ export default class Game {
   removeShip(toRemove){
     var i = LAYERS.SHIPS.indexOf(toRemove);
     LAYERS.SHIPS.splice(i,1);
+
+    if(LAYERS.SHIPS.length == 1){
+      alert("Winner!!")
+    }
   }
   handleCollisions(){
     LAYERS.SHIPS.forEach((ship)=>{
