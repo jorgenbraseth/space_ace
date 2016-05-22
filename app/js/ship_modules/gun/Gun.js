@@ -4,7 +4,7 @@ import ShipModule from "../ShipModule"
 import Bullet from "./Bullet"
 
 
-const MASS = 25;
+const MASS = 50;
 const ENGINE_POWER = 0;
 const TURN_POWER = 0;
 const COST = 25;

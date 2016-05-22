@@ -88,11 +88,13 @@
 	
 	var _ControllableShip2 = _interopRequireDefault(_ControllableShip);
 	
-	var _DummyShip = __webpack_require__(21);
+	var _DummyShip = __webpack_require__(20);
 	
 	var _DummyShip2 = _interopRequireDefault(_DummyShip);
 	
-	var _Utils = __webpack_require__(7);
+	var _Utils = __webpack_require__(8);
+	
+	var _Keys = __webpack_require__(21);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -122,8 +124,30 @@
 	    value: function init() {
 	      this.globalTime = 0;
 	
-	      LAYERS.SHIPS.push(new _ControllableShip2.default(this));
-	      LAYERS.SHIPS.push(new _DummyShip2.default(this));
+	      var PLAYER1_SCHEMATIC = ["  GGG  ", " GWSWG ", "SEWXWES", "  EEE  "];
+	
+	      var PLAYER2_SCHEMATIC = ["  SGS  ", "SEWXWES", "  G G  "];
+	
+	      var AI_SCHEMATIC = [" WXG ", "  E "];
+	
+	      var PLAYER1_CONTROLS = {
+	        ACCELERATE: _Keys.KEY_MAP.W,
+	        TURN_CLOCKWISE: _Keys.KEY_MAP.D,
+	        TURN_COUNTERCLOCKWISE: _Keys.KEY_MAP.S,
+	        FIRE_PRIMARY: _Keys.KEY_MAP.SPACE
+	      };
+	
+	      var PLAYER2_CONTROLS = {
+	        ACCELERATE: _Keys.KEY_MAP.UP,
+	        TURN_CLOCKWISE: _Keys.KEY_MAP.RIGHT,
+	        TURN_COUNTERCLOCKWISE: _Keys.KEY_MAP.LEFT,
+	        FIRE_PRIMARY: _Keys.KEY_MAP.NUM_0
+	      };
+	
+	      LAYERS.SHIPS.push(new _ControllableShip2.default(this, 55, 55, 0, PLAYER1_SCHEMATIC, PLAYER1_CONTROLS));
+	      LAYERS.SHIPS.push(new _ControllableShip2.default(this, 455, 455, 0, PLAYER2_SCHEMATIC, PLAYER2_CONTROLS));
+	      LAYERS.SHIPS.push(new _DummyShip2.default(this, Math.floor(Math.random() * 2000), Math.floor(Math.random() * 2000), 0, AI_SCHEMATIC));
+	      LAYERS.SHIPS.push(new _DummyShip2.default(this, Math.floor(Math.random() * 2000), Math.floor(Math.random() * 2000), 0, AI_SCHEMATIC));
 	    }
 	  }, {
 	    key: "tickLayer",
@@ -137,6 +161,16 @@
 	    value: function removeShot(toRemove) {
 	      var i = LAYERS.SHOTS.indexOf(toRemove);
 	      LAYERS.SHOTS.splice(i, 1);
+	    }
+	  }, {
+	    key: "removeShip",
+	    value: function removeShip(toRemove) {
+	      var i = LAYERS.SHIPS.indexOf(toRemove);
+	      LAYERS.SHIPS.splice(i, 1);
+	
+	      if (LAYERS.SHIPS.length == 1) {
+	        alert("Winner!!");
+	      }
 	    }
 	  }, {
 	    key: "handleCollisions",
@@ -338,13 +372,85 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _Sprite2 = __webpack_require__(6);
+	var _Ship2 = __webpack_require__(6);
+	
+	var _Ship3 = _interopRequireDefault(_Ship2);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var ControllableShip = function (_Ship) {
+	  _inherits(ControllableShip, _Ship);
+	
+	  function ControllableShip(game, x, y, angle, schematic, keyBindings) {
+	    _classCallCheck(this, ControllableShip);
+	
+	    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(ControllableShip).call(this, game, x, y, angle, schematic));
+	
+	    _this.keyBindings = keyBindings;
+	
+	    _this.bindKeys(keyBindings);
+	    return _this;
+	  }
+	
+	  _createClass(ControllableShip, [{
+	    key: "bindKeys",
+	    value: function bindKeys(keyBindings) {
+	      var _this2 = this;
+	
+	      this.game.keyControl.onKeyDown(keyBindings.ACCELERATE, function () {
+	        return _this2.accelerating = true;
+	      });
+	      this.game.keyControl.onKeyDown(keyBindings.TURN_CLOCKWISE, function () {
+	        return _this2._turningCW = true;
+	      });
+	      this.game.keyControl.onKeyDown(keyBindings.TURN_COUNTERCLOCKWISE, function () {
+	        return _this2._turningCCW = true;
+	      });
+	      this.game.keyControl.onKeyDown(keyBindings.FIRE_PRIMARY, function () {
+	        return _this2._firingPrimary = true;
+	      });
+	
+	      this.game.keyControl.onKeyUp(keyBindings.ACCELERATE, function () {
+	        return _this2.accelerating = false;
+	      });
+	      this.game.keyControl.onKeyUp(keyBindings.TURN_CLOCKWISE, function () {
+	        return _this2._turningCW = false;
+	      });
+	      this.game.keyControl.onKeyUp(keyBindings.TURN_COUNTERCLOCKWISE, function () {
+	        return _this2._turningCCW = false;
+	      });
+	      this.game.keyControl.onKeyUp(keyBindings.FIRE_PRIMARY, function () {
+	        return _this2._firingPrimary = false;
+	      });
+	    }
+	  }]);
+	
+	  return ControllableShip;
+	}(_Ship3.default);
+	
+	exports.default = ControllableShip;
+
+/***/ },
+/* 6 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _Sprite2 = __webpack_require__(7);
 	
 	var _Sprite3 = _interopRequireDefault(_Sprite2);
-	
-	var _falcon = __webpack_require__(11);
-	
-	var _falcon2 = _interopRequireDefault(_falcon);
 	
 	var _Engine = __webpack_require__(12);
 	
@@ -366,8 +472,6 @@
 	
 	var _Gun2 = _interopRequireDefault(_Gun);
 	
-	var _Keys = __webpack_require__(20);
-	
 	var _Constants = __webpack_require__(14);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -378,49 +482,42 @@
 	
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 	
-	var SHIP_SCHEMATIC = ["  GGG  ", "GGSSSGG", "WWWXWWW", "SEEEEES"];
+	var _x, _y, _dx, _dy, _width, _height, _angle, _pivotX, _pivotY;
+	var _enginePower, _turnPower, _mass, _cost;
 	
-	var ControllableShip = function (_Sprite) {
-	  _inherits(ControllableShip, _Sprite);
+	var _turningCW, _turningCCW, _accelerating, _firingPrimary;
+	var _modules;
+	//
 	
-	  function ControllableShip(game) {
-	    _classCallCheck(this, ControllableShip);
+	var Ship = function (_Sprite) {
+	  _inherits(Ship, _Sprite);
 	
-	    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(ControllableShip).call(this));
+	  function Ship(game, x, y, angle, schematic) {
+	    _classCallCheck(this, Ship);
 	
+	    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Ship).call(this));
+	
+	    _this.schematic = schematic;
 	    _this.game = game;
-	    _this.x = 55;
-	    _this.y = 55;
-	    _this._pivotX = 0;
-	    _this._pivotY = 0;
+	    _this._x = x;
+	    _this._y = y;
+	    _this._dx = 0;
+	    _this._dy = 0;
 	
-	    _this.mass = 0;
+	    _this._firingPrimary = false;
 	
-	    _this._width = 30;
-	    _this._height = 20;
+	    _this._accelerating = false;
 	
-	    _this.dx = 0;
-	    _this.dy = 0;
-	    _this.enginePower = 0;
+	    _this._angle = angle;
 	
-	    _this.angle = 0;
-	    _this.turnPower = 0;
-	
-	    _this.cost = 0;
-	
-	    _this.turningCCW = false;
-	    _this.turningCW = false;
-	
-	    _this.bindKeys();
-	
-	    _this.img = new Image();
-	    _this.img.src = _falcon2.default;
+	    _this._turningCCW = false;
+	    _this._turningCW = false;
 	
 	    _this.loadParts();
 	    return _this;
 	  }
 	
-	  _createClass(ControllableShip, [{
+	  _createClass(Ship, [{
 	    key: "removeModule",
 	    value: function removeModule(moduleToRemove) {
 	      for (var y = 0; y < this._modules.length; y++) {
@@ -440,12 +537,12 @@
 	    value: function loadParts() {
 	      this._modules = [];
 	
-	      for (var row = 0; row < SHIP_SCHEMATIC.length; row++) {
+	      for (var row = 0; row < this.schematic.length; row++) {
 	        var y = row * _Constants.BLOCK_SIZE;
 	
 	        var partsRow = [];
 	        this._modules.push(partsRow);
-	        var positions = SHIP_SCHEMATIC[row].split("");
+	        var positions = this.schematic[row].split("");
 	        for (var pos = 0; pos < positions.length; pos++) {
 	          var x = pos * _Constants.BLOCK_SIZE;
 	
@@ -478,22 +575,22 @@
 	    value: function recalculateAggregateProperties() {
 	      var allParts = this.modules;
 	
-	      this.mass = allParts.map(function (p) {
+	      this._mass = allParts.map(function (p) {
 	        return p.mass;
 	      }).reduce(function (a, b) {
 	        return a + b;
 	      }, 0);
-	      this.enginePower = allParts.map(function (p) {
+	      this._enginePower = allParts.map(function (p) {
 	        return p.enginePower;
 	      }).reduce(function (a, b) {
 	        return a + b;
 	      }, 0);
-	      this.turnPower = allParts.map(function (p) {
+	      this._turnPower = allParts.map(function (p) {
 	        return p.turnPower;
 	      }).reduce(function (a, b) {
 	        return a + b;
 	      }, 0);
-	      this.cost = allParts.map(function (p) {
+	      this._cost = allParts.map(function (p) {
 	        return p.cost;
 	      }).reduce(function (a, b) {
 	        return a + b;
@@ -535,37 +632,12 @@
 	      this._height = (highestY - lowestY + 1) * _Constants.BLOCK_SIZE;
 	    }
 	  }, {
-	    key: "bindKeys",
-	    value: function bindKeys() {
-	      var _this2 = this;
-	
-	      this.game.keyControl.onKeyDown(_Keys.KEY_MAP.ACCELERATE, function () {
-	        return _this2.accelerating = true;
-	      });
-	      this.game.keyControl.onKeyDown(_Keys.KEY_MAP.TURN_CLOCKWISE, function () {
-	        return _this2.turningCW = true;
-	      });
-	      this.game.keyControl.onKeyDown(_Keys.KEY_MAP.TURN_COUNTERCLOCKWISE, function () {
-	        return _this2.turningCCW = true;
-	      });
-	
-	      this.game.keyControl.onKeyUp(_Keys.KEY_MAP.ACCELERATE, function () {
-	        return _this2.accelerating = false;
-	      });
-	      this.game.keyControl.onKeyUp(_Keys.KEY_MAP.TURN_CLOCKWISE, function () {
-	        return _this2.turningCW = false;
-	      });
-	      this.game.keyControl.onKeyUp(_Keys.KEY_MAP.TURN_COUNTERCLOCKWISE, function () {
-	        return _this2.turningCCW = false;
-	      });
-	    }
-	  }, {
 	    key: "draw",
 	    value: function draw(screen) {
 	      screen.save();
-	      screen.translate(this.x, this.y);
+	      screen.translate(this._x, this._y);
 	      screen.rotate(90 * _Constants.DEGREE);
-	      screen.rotate(this.angle);
+	      screen.rotate(this._angle);
 	
 	      screen.translate(-this.pivotX, -this.pivotY);
 	
@@ -584,9 +656,7 @@
 	    }
 	  }, {
 	    key: "collide",
-	    value: function collide(collidedWith) {
-	      // console.log(this.constructor.name + " collided with " + collidedWith.constructor.name);
-	    }
+	    value: function collide(collidedWith) {}
 	  }, {
 	    key: "tickModules",
 	    value: function tickModules() {
@@ -608,61 +678,67 @@
 	  }, {
 	    key: "moveAccordingToSpeed",
 	    value: function moveAccordingToSpeed() {
-	      this.x += this.dx;
-	      this.y += this.dy;
+	      this._x += this._dx;
+	      this._y += this._dy;
 	    }
 	  }, {
 	    key: "wrapAroundWorld",
 	    value: function wrapAroundWorld() {
 	      var cw = this.game.canvas.getAttribute("width");
 	      var ch = this.game.canvas.getAttribute("height");
-	      if (this.x < 0) {
-	        this.x = cw - this.x;
-	      } else if (this.x > cw) {
-	        this.x = this.x - cw;
+	      if (this._x < 0) {
+	        this._x = cw - this._x;
+	      } else if (this._x > cw) {
+	        this._x = this._x - cw;
 	      }
-	      if (this.y < 0) {
-	        this.y = ch - this.y;
-	      } else if (this.y > ch) {
-	        this.y = this.y - ch;
+	      if (this._y < 0) {
+	        this._y = ch - this._y;
+	      } else if (this._y > ch) {
+	        this._y = this._y - ch;
 	      }
 	    }
 	  }, {
 	    key: "calculateNewAngle",
 	    value: function calculateNewAngle() {
-	      if (this.turningCCW) {
-	        this.angle -= this.turnSpeed;
+	      if (this._turningCCW) {
+	        this._angle -= this.turnSpeed;
 	      }
-	      if (this.turningCW) {
-	        this.angle += this.turnSpeed;
+	      if (this._turningCW) {
+	        this._angle += this.turnSpeed;
 	      }
 	    }
 	  }, {
 	    key: "calculateNewSpeeds",
 	    value: function calculateNewSpeeds() {
 	      if (this.accelerating) {
-	        var accX = Math.cos(this.angle) * this.acceleration;
-	        this.dx = this.dx + accX;
+	        var accX = Math.cos(this._angle) * this.acceleration;
+	        this._dx = this._dx + accX;
 	
-	        var accY = Math.sin(this.angle) * this.acceleration;
-	        this.dy = this.dy + accY;
+	        var accY = Math.sin(this._angle) * this.acceleration;
+	        this._dy = this._dy + accY;
 	      }
 	
 	      var breakX = Math.cos(this.movementAngleRadians) * this.drag;
-	      this.dx = this.dx - breakX;
+	      this._dx = this._dx - breakX;
 	
 	      var breakY = Math.sin(this.movementAngleRadians) * this.drag;
-	      this.dy = this.dy - breakY;
+	      this._dy = this._dy - breakY;
 	
 	      if (this.speed < 0.15) {
-	        this.dx = 0;
-	        this.dy = 0;
+	        this._dx = 0;
+	        this._dy = 0;
 	      }
+	    }
+	  }, {
+	    key: "die",
+	    value: function die() {
+	      console.log("Ship destroyed!");
+	      this.game.removeShip(this);
 	    }
 	  }, {
 	    key: "globalAngle",
 	    get: function get() {
-	      return this.angle;
+	      return this._angle;
 	    }
 	  }, {
 	    key: "width",
@@ -677,12 +753,12 @@
 	  }, {
 	    key: "globalX",
 	    get: function get() {
-	      return this.x;
+	      return this._x;
 	    }
 	  }, {
 	    key: "globalY",
 	    get: function get() {
-	      return this.y;
+	      return this._y;
 	    }
 	  }, {
 	    key: "drawParent",
@@ -700,6 +776,44 @@
 	      return this._pivotY;
 	    }
 	  }, {
+	    key: "x",
+	    get: function get() {
+	      return this._x;
+	    }
+	  }, {
+	    key: "y",
+	    get: function get() {
+	      return this._y;
+	    }
+	  }, {
+	    key: "accelerating",
+	    get: function get() {
+	      return this._accelerating;
+	    },
+	    set: function set(isAccelerating) {
+	      this._accelerating = isAccelerating;
+	    }
+	  }, {
+	    key: "enginePower",
+	    get: function get() {
+	      return this._enginePower;
+	    }
+	  }, {
+	    key: "mass",
+	    get: function get() {
+	      return this._mass;
+	    }
+	  }, {
+	    key: "turnPower",
+	    get: function get() {
+	      return this._turnPower;
+	    }
+	  }, {
+	    key: "cost",
+	    get: function get() {
+	      return this._cost;
+	    }
+	  }, {
 	    key: "modules",
 	    get: function get() {
 	      return [].concat.apply([], this._modules).filter(function (p) {
@@ -709,7 +823,7 @@
 	  }, {
 	    key: "movementAngleRadians",
 	    get: function get() {
-	      var radians = Math.atan2(this.dy, this.dx);
+	      var radians = Math.atan2(this._dy, this._dx);
 	      return radians;
 	    }
 	  }, {
@@ -722,7 +836,7 @@
 	    get: function get() {
 	      var fluidDensity = 0.5;
 	      var frontalArea = this.mass;
-	      var speed = Math.sqrt(Math.pow(this.dx, 2) + Math.pow(this.dy, 2));
+	      var speed = Math.sqrt(Math.pow(this._dx, 2) + Math.pow(this._dy, 2));
 	      var dragForce = 0.05 * fluidDensity * frontalArea * Math.pow(speed, 2);
 	
 	      return dragForce / this.mass;
@@ -738,19 +852,24 @@
 	      return this.turnPower / this.mass * _Constants.DEGREE;
 	    }
 	  }, {
+	    key: "angle",
+	    get: function get() {
+	      return this._angle;
+	    }
+	  }, {
 	    key: "speed",
 	    get: function get() {
-	      return Math.sqrt(Math.pow(this.dx, 2) + Math.pow(this.dy, 2));
+	      return Math.sqrt(Math.pow(this._dx, 2) + Math.pow(this._dy, 2));
 	    }
 	  }]);
 	
-	  return ControllableShip;
+	  return Ship;
 	}(_Sprite3.default);
 	
-	exports.default = ControllableShip;
+	exports.default = Ship;
 
 /***/ },
-/* 6 */
+/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -761,7 +880,7 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _Utils = __webpack_require__(7);
+	var _Utils = __webpack_require__(8);
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
@@ -829,7 +948,7 @@
 	exports.default = Sprite;
 
 /***/ },
-/* 7 */
+/* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -840,7 +959,7 @@
 	exports.boundingBox = boundingBox;
 	exports.isSpritesColliding = isSpritesColliding;
 	
-	var _sat = __webpack_require__(8);
+	var _sat = __webpack_require__(9);
 	
 	var _sat2 = _interopRequireDefault(_sat);
 	
@@ -878,7 +997,7 @@
 	}
 
 /***/ },
-/* 8 */
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(module) {// Version 0.5.0 - Copyright 2012 - 2015 -  Jim Riecken <jimr@jimr.ca>
@@ -908,7 +1027,7 @@
 	 */
 	(function (root, factory) {
 	  "use strict";
-	  if ("function" === 'function' && __webpack_require__(10)['amd']) {
+	  if ("function" === 'function' && __webpack_require__(11)['amd']) {
 	    !(__WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.call(exports, __webpack_require__, exports, module)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 	  } else if (true) {
 	    module['exports'] = factory();
@@ -1864,10 +1983,10 @@
 	  return SAT;
 	}));
 	
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9)(module)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10)(module)))
 
 /***/ },
-/* 9 */
+/* 10 */
 /***/ function(module, exports) {
 
 	module.exports = function(module) {
@@ -1883,17 +2002,11 @@
 
 
 /***/ },
-/* 10 */
+/* 11 */
 /***/ function(module, exports) {
 
 	module.exports = function() { throw new Error("define cannot be used indirect"); };
 
-
-/***/ },
-/* 11 */
-/***/ function(module, exports) {
-
-	module.exports = "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+CjxzdmcKICAgeG1sbnM6ZGM9Imh0dHA6Ly9wdXJsLm9yZy9kYy9lbGVtZW50cy8xLjEvIgogICB4bWxuczpjYz0iaHR0cDovL2NyZWF0aXZlY29tbW9ucy5vcmcvbnMjIgogICB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiCiAgIHhtbG5zOnN2Zz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiAgIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIKICAgeG1sbnM6c29kaXBvZGk9Imh0dHA6Ly9zb2RpcG9kaS5zb3VyY2Vmb3JnZS5uZXQvRFREL3NvZGlwb2RpLTAuZHRkIgogICB4bWxuczppbmtzY2FwZT0iaHR0cDovL3d3dy5pbmtzY2FwZS5vcmcvbmFtZXNwYWNlcy9pbmtzY2FwZSIKICAgaGVpZ2h0PSI0MjQuNTYyMzUiCiAgIGlkPSJMYXllcl8xIgogICB2ZXJzaW9uPSIxLjIiCiAgIHZpZXdCb3g9IjAgMCA1MjUuMzk0MDQgNDI0LjU2MjM1IgogICB3aWR0aD0iNTI1LjM5NDA0IgogICB4bWw6c3BhY2U9InByZXNlcnZlIgogICBpbmtzY2FwZTp2ZXJzaW9uPSIwLjkxIHIxMzcyNSIKICAgc29kaXBvZGk6ZG9jbmFtZT0iZmFsY29uLnN2ZyI+PG1ldGFkYXRhCiAgICAgaWQ9Im1ldGFkYXRhMzM0NyI+PHJkZjpSREY+PGNjOldvcmsKICAgICAgICAgcmRmOmFib3V0PSIiPjxkYzpmb3JtYXQ+aW1hZ2Uvc3ZnK3htbDwvZGM6Zm9ybWF0PjxkYzp0eXBlCiAgICAgICAgICAgcmRmOnJlc291cmNlPSJodHRwOi8vcHVybC5vcmcvZGMvZGNtaXR5cGUvU3RpbGxJbWFnZSIgLz48ZGM6dGl0bGU+PC9kYzp0aXRsZT48L2NjOldvcms+PC9yZGY6UkRGPjwvbWV0YWRhdGE+PGRlZnMKICAgICBpZD0iZGVmczMzNDUiIC8+PHNvZGlwb2RpOm5hbWVkdmlldwogICAgIHBhZ2Vjb2xvcj0iI2ZmZmZmZiIKICAgICBib3JkZXJjb2xvcj0iIzY2NjY2NiIKICAgICBib3JkZXJvcGFjaXR5PSIxIgogICAgIG9iamVjdHRvbGVyYW5jZT0iMTAiCiAgICAgZ3JpZHRvbGVyYW5jZT0iMTAiCiAgICAgZ3VpZGV0b2xlcmFuY2U9IjEwIgogICAgIGlua3NjYXBlOnBhZ2VvcGFjaXR5PSIwIgogICAgIGlua3NjYXBlOnBhZ2VzaGFkb3c9IjIiCiAgICAgaW5rc2NhcGU6d2luZG93LXdpZHRoPSIyNTYwIgogICAgIGlua3NjYXBlOndpbmRvdy1oZWlnaHQ9IjEzNzciCiAgICAgaWQ9Im5hbWVkdmlldzMzNDMiCiAgICAgc2hvd2dyaWQ9ImZhbHNlIgogICAgIGlua3NjYXBlOnpvb209IjAuODM0MTY1MDMiCiAgICAgaW5rc2NhcGU6Y3g9IjQwNC4xMjYwOCIKICAgICBpbmtzY2FwZTpjeT0iMTMuNjI5OTk1IgogICAgIGlua3NjYXBlOndpbmRvdy14PSItOCIKICAgICBpbmtzY2FwZTp3aW5kb3cteT0iLTgiCiAgICAgaW5rc2NhcGU6d2luZG93LW1heGltaXplZD0iMSIKICAgICBpbmtzY2FwZTpjdXJyZW50LWxheWVyPSJMYXllcl8xIgogICAgIGZpdC1tYXJnaW4tdG9wPSIwIgogICAgIGZpdC1tYXJnaW4tbGVmdD0iMCIKICAgICBmaXQtbWFyZ2luLXJpZ2h0PSIwIgogICAgIGZpdC1tYXJnaW4tYm90dG9tPSIwIiAvPjxnCiAgICAgaWQ9ImczMzQ5IgogICAgIHRyYW5zZm9ybT0ibWF0cml4KC0wLjgzNTYxMDc5LDAuNTQ5MzIxOTUsLTAuNTQ5MzIxOTUsLTAuODM1NjEwNzksNjMyLjU4MDM5LDI5Mi4yNDM1NSkiPjxwYXRoCiAgICAgICBpZD0icGF0aDMzMzciCiAgICAgICBkPSJNIDE5OS4xMDEsODMuMjY2IDI0NC41OTYsNy4yNzcgYyAtNS4zNDQsLTIuMzA2IC0xMS4wMTcsLTMuOTY2IC0xNy4yMDEsLTMuOTY2IC0yNC45NDQsMCAtNDUuMTY2LDIwLjIyMiAtNDUuMTY2LDQ1LjE2IDAsMTQuMTMzIDYuNjkzLDI2LjUyOSAxNi44NzIsMzQuNzk1IgogICAgICAgaW5rc2NhcGU6Y29ubmVjdG9yLWN1cnZhdHVyZT0iMCIgLz48cGF0aAogICAgICAgaWQ9InBhdGgzMzM5IgogICAgICAgZD0ibSA1MDcuNzksMzA3LjkyNCAtMTIuMTA4LC04LjA4NCBjIC0yLjM0NywtMzkuMzIzIC0xNi4zOTEsLTc3LjY2NyAtNDEuMTU5LC0xMDkuMzkzIGwgLTMxLjY2OCw0LjA3MSAyLjE5NCwtMy4yNzkgYyA4LjI2LC0xMi4zNjcgNC44OTMsLTI5LjIzMyAtNy40NjIsLTM3LjQ5OSBsIC0xNy42NTgsLTExLjc4NiBjIC0xMi4zNTUsLTguMjU0IC0yOS4yMjgsLTQuODkzIC0zNy40ODcsNy40NzQgbCAtMi40ODcsMy43MTMgLTE0LjA1NywtODQuMTAxIC04NS40NywtNTMuMTIyIC00NS44MzUsNzYuNTU4IDIyLjQ4LDEyLjU1NCAtMTYzLjE0NiwtMjAuNjczIC0yMy42MDcsMzUuMzM0IDk4LjQxLDY1LjczNCBjIC00LjQzNSw1LjMyMSAtOC43MTEsMTAuODI0IC0xMi42NDIsMTYuNzA4IC0zLjkyNSw1Ljg5IC03LjM3NCwxMS45NDQgLTEwLjU5NSwxOC4wNzUgbCAtOTguMzk5LC02NS43MzQgLTIzLjYwNiwzNS4zNDUgMTI3LjQ2MSwyMjMuMDY4IDAuMjE3LC0wLjM1MyBjIDIuNTU4LDQuMjcxIDUuMzkxLDguNDAxIDguMjc3LDEyLjUyIGwgNDIuNTQ0LC01LjQ2OCAtNy45MDgsMTEuODE1IGMgLTguMjU0LDEyLjM2NiAtNC44ODcsMjkuMjM4IDcuNDc0LDM3LjQ5OCBsIDE3LjY1MiwxMS43OTIgYyAxMi4zNjEsOC4yNDggMjkuMjI3LDQuOTA0IDM3LjQ4MSwtNy40NjIgbCA2LjYsLTkuODY4IDQuODQsMzcuNjYzIGMgMzcuMDUzLDEwLjA2NyA3NS44NzcsOC43MjkgMTExLjY1MSwtMi43NDUgbCAxNC40NDMsOS42NDUgYyAzOS40OTMsLTEzLjkzOCA3NC45NzQsLTQwLjI5MSAxMDAuMDM1LC03Ny43OSAyNS4wNjMsLTM3LjUxIDM1LjgxMSwtODAuMzk0IDMzLjUzNSwtMTIyLjIxIE0gMzYyLjY1Miw0MTMuODI2IGMgLTIuNzY5LDQuMTQyIC04LjM1NCw1LjI0NCAtMTIuNDk1LDIuNDg3IC00LjE0MiwtMi43NyAtNS4yNDUsLTguMzU0IC0yLjQ4NywtMTIuNTA4IDIuNzU3LC00LjEzIDguMzY1LC01LjI0NCAxMi40OTUsLTIuNDg3IDQuMTQyLDIuNzcgNS4yNTcsOC4zNjcgMi40ODcsMTIuNTA4IG0gLTMuMTQ0LC02Mi40NjcgYyAtMTMuMzk4LDIwLjA3NSAtMzUuODMyLDMyLjA2NiAtNTkuOTc5LDMyLjA2NiAtMTQuMjc5LDAgLTI4LjA4OSwtNC4yMTIgLTM5Ljk5OCwtMTIuMTY3IC0zMy4wNTgsLTIyLjA1OSAtNDEuOTY5LC02Ni45MDEgLTE5LjkxMSwtOTkuOTU0IDEzLjQxMSwtMjAuMDkyIDM1LjgzMywtMzIuMDY2IDYwLjAxNCwtMzIuMDY2IDE0LjI1NiwwIDI4LjA2NSw0LjIwMSAzOS45NzUsMTIuMTMyIDMzLjA0LDIyLjA5NCA0MS45NTcsNjYuOTYxIDE5Ljg5OSw5OS45ODkgbSAyOC42MjksOTkuNjE0IGMgLTIuNzU3LDQuMTMgLTguMzU0LDUuMjQ1IC0xMi40ODMsMi40ODcgLTQuMTU0LC0yLjc2OSAtNS4yNTcsLTguMzY1IC0yLjQ4NywtMTIuNTA3IDIuNzY5LC00LjEzMSA4LjM1NCwtNS4yNDUgMTIuNDgzLC0yLjQ3NyA0LjE0MSwyLjc1OCA1LjI1Niw4LjM0MyAyLjQ4NywxMi40OTcgbSA3LjAxNiwtNzAuNzUgYyAtMi43NTgsNC4xMyAtOC4zNDMsNS4yNDUgLTEyLjQ4NCwyLjQ4NyAtNC4xMywtMi43NjkgLTUuMjU2LC04LjM3NyAtMi40ODcsLTEyLjUwNyAyLjc3LC00LjE0MyA4LjM1NCwtNS4yNTcgMTIuNDg0LC0yLjQ4OCA0LjE1MywyLjc2OSA1LjI1Niw4LjM1NCAyLjQ4NywxMi41MDggbSA2LjExMywtNDAuNDMyIGMgLTQuMTQyLC0yLjc1OCAtNS4yNDQsLTguMzU0IC0yLjQ4NywtMTIuNTA4IDIuNzU4LC00LjEzIDguMzY2LC01LjI0NCAxMi41MDgsLTIuNDg3IDQuMTMsMi43NjkgNS4yNDQsOC4zNzcgMi40ODcsMTIuNTA4IC0yLjc1Nyw0LjE0MSAtOC4zNjYsNS4yNTYgLTEyLjUwOCwyLjQ4NyBtIDI4LjY3NSw2My42NTEgYyAtMi43NTcsNC4xNDIgLTguMzQyLDUuMjQ0IC0xMi40OTUsMi40NzYgLTQuMTMxLC0yLjc1NyAtNS4yNTcsLTguMzQyIC0yLjQ4NywtMTIuNDg0IDIuNzY5LC00LjEzIDguMzY1LC01LjI1NiAxMi40OTUsLTIuNDg3IDQuMTQyLDIuNzY5IDUuMjQ1LDguMzU0IDIuNDg3LDEyLjQ5NSBtIDI3LjkwMiwtNTYuODIzIGMgLTIuNzU4LDQuMTUzIC04LjM2Niw1LjI1NyAtMTIuNDk2LDIuNDg3IC00LjE1MywtMi43NjkgLTUuMjU2LC04LjM1NCAtMi40ODcsLTEyLjQ4MyAyLjc3LC00LjE0MiA4LjM1NCwtNS4yNTcgMTIuNDk2LC0yLjQ4NyA0LjEyOSwyLjc1NyA1LjI0NCw4LjM1MyAyLjQ4NywxMi40ODMiCiAgICAgICBpbmtzY2FwZTpjb25uZWN0b3ItY3VydmF0dXJlPSIwIiAvPjxwYXRoCiAgICAgICBpZD0icGF0aDMzNDEiCiAgICAgICBkPSJtIDMyOS41ODksMjY2LjM3MSBjIC04LjkyOSwtNS45NzIgLTE5LjI4OSwtOS4xMjIgLTI5Ljk1NCwtOS4xMjIgLTE4LjE1MSwwIC0zNC45NzcsOC45OTkgLTQ1LjAyLDI0LjA0MSAtMTYuNTU1LDI0LjgwNCAtOS44NSw1OC40MzEgMTQuOTI1LDc0Ljk3NCA4LjkxNyw1Ljk3MyAxOS4yODksOS4xNDEgMjkuOTY2LDkuMTQxIDE4LjEzOSwwIDM0Ljk2NCwtOSA0NS4wMDgsLTI0LjA0MSAxNi41NjYsLTI0LjgwNCA5Ljg1NSwtNTguNDMxIC0xNC45MjUsLTc0Ljk5MyIKICAgICAgIGlua3NjYXBlOmNvbm5lY3Rvci1jdXJ2YXR1cmU9IjAiIC8+PC9nPjwvc3ZnPg=="
 
 /***/ },
 /* 12 */
@@ -1943,12 +2056,24 @@
 	      screen.save();
 	      screen.translate(this.x, this.y);
 	
+	      if (this.ship.accelerating) {
+	        screen.fillStyle = "#66ff66";
+	        screen.beginPath();
+	        screen.lineTo(0, 0);
+	        screen.lineTo(_Constants.BLOCK_SIZE, 0);
+	        screen.lineTo(_Constants.BLOCK_SIZE, _Constants.BLOCK_SIZE / 2);
+	        screen.lineTo(_Constants.BLOCK_SIZE / 2, _Constants.BLOCK_SIZE);
+	        screen.lineTo(0, _Constants.BLOCK_SIZE / 2);
+	        screen.closePath();
+	        screen.fill();
+	      }
+	
 	      screen.fillStyle = "#00aa00";
 	      screen.beginPath();
 	      screen.lineTo(0, 0);
 	      screen.lineTo(_Constants.BLOCK_SIZE, 0);
 	      screen.lineTo(_Constants.BLOCK_SIZE, _Constants.BLOCK_SIZE / 2);
-	      screen.lineTo(_Constants.BLOCK_SIZE / 2, _Constants.BLOCK_SIZE);
+	      screen.lineTo(_Constants.BLOCK_SIZE / 2, _Constants.BLOCK_SIZE / 3);
 	      screen.lineTo(0, _Constants.BLOCK_SIZE / 2);
 	      screen.closePath();
 	      screen.fill();
@@ -1978,11 +2103,11 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _sat = __webpack_require__(8);
+	var _sat = __webpack_require__(9);
 	
 	var _sat2 = _interopRequireDefault(_sat);
 	
-	var _Sprite2 = __webpack_require__(6);
+	var _Sprite2 = __webpack_require__(7);
 	
 	var _Sprite3 = _interopRequireDefault(_Sprite2);
 	
@@ -2045,7 +2170,6 @@
 	  }, {
 	    key: "die",
 	    value: function die() {
-	      console.log(this.constructor.name + " destroyed!");
 	      this.ship.removeModule(this);
 	    }
 	  }, {
@@ -2117,7 +2241,6 @@
 	
 	      var x = this.ship.x + Math.cos(shipAngle) * shipCenterOffestX - Math.sin(shipAngle) * shipCenterOffestY;
 	      var y = this.ship.y + Math.sin(shipAngle) * shipCenterOffestX + Math.cos(shipAngle) * shipCenterOffestY;
-	
 	      return [x, y];
 	    }
 	  }]);
@@ -2137,7 +2260,7 @@
 	  value: true
 	});
 	var DEGREE = exports.DEGREE = Math.PI / 180;
-	var BLOCK_SIZE = exports.BLOCK_SIZE = 10;
+	var BLOCK_SIZE = exports.BLOCK_SIZE = 15;
 
 /***/ },
 /* 15 */
@@ -2150,6 +2273,8 @@
 	});
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
 	
 	var _ShipModule2 = __webpack_require__(13);
 	
@@ -2199,6 +2324,12 @@
 	      screen.fill();
 	
 	      screen.restore();
+	    }
+	  }, {
+	    key: "die",
+	    value: function die() {
+	      _get(Object.getPrototypeOf(Core.prototype), "die", this).call(this);
+	      this.ship.die();
 	    }
 	  }]);
 	
@@ -2352,8 +2483,6 @@
 	
 	var _Bullet2 = _interopRequireDefault(_Bullet);
 	
-	var _Keys = __webpack_require__(20);
-	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
@@ -2379,16 +2508,8 @@
 	
 	    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Gun).call(this, ship, x, y, MASS, ENGINE_POWER, TURN_POWER, COST, HITPOINTS, POWER_GENERATION));
 	
-	    _this.firingRate = 5;
-	    _this.timeToNextFire = 0;
-	
-	    _this.shooting = false;
-	    _this.game.keyControl.onKeyDown(_Keys.KEY_MAP.SPACE, function () {
-	      return _this.shooting = true;
-	    });
-	    _this.game.keyControl.onKeyUp(_Keys.KEY_MAP.SPACE, function () {
-	      return _this.shooting = false;
-	    });
+	    _this.timeToReload = 25;
+	    _this.reloadTimeLeft = 0;
 	    return _this;
 	  }
 	
@@ -2415,13 +2536,18 @@
 	      screen.closePath();
 	      screen.fill();
 	
+	      screen.fillStyle = "#ffff00";
+	      var maxWidth = this.width - 1;
+	      screen.fillRect(1, this.height - 2, maxWidth * (1 - this.reloadTimeLeft / this.timeToReload), 1);
+	
 	      screen.restore();
 	    }
 	  }, {
 	    key: "tick",
 	    value: function tick() {
-	      if (this.shooting && this.timeToNextFire-- == 0) {
-	        this.timeToNextFire = this.firingRate;
+	      this.reloadTimeLeft = Math.max(this.reloadTimeLeft - 1, 0);
+	      if (this.ship._firingPrimary && this.reloadTimeLeft <= 0) {
+	        this.reloadTimeLeft = this.timeToReload;
 	        this.game.spawn(new (Function.prototype.bind.apply(_Bullet2.default, [null].concat([this], _toConsumableArray(this.worldPos), [this.ship.angle])))(), "SHOTS");
 	      }
 	    }
@@ -2444,7 +2570,7 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _Sprite2 = __webpack_require__(6);
+	var _Sprite2 = __webpack_require__(7);
 	
 	var _Sprite3 = _interopRequireDefault(_Sprite2);
 	
@@ -2458,7 +2584,7 @@
 	
 	var DEGREE = Math.PI / 180;
 	
-	var x, y, gun;
+	var _x, _y, gun;
 	
 	var Bullet = function (_Sprite) {
 	  _inherits(Bullet, _Sprite);
@@ -2469,13 +2595,13 @@
 	    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Bullet).call(this));
 	
 	    _this.gun = gun;
-	    _this.x = x;
-	    _this.y = y;
-	    _this.speed = 3;
+	    _this._x = x;
+	    _this._y = y;
+	    _this.speed = 6;
 	    _this.angle = angle;
 	    _this.age = 0;
 	
-	    _this.damage = 5;
+	    _this.damage = 2;
 	
 	    _this.dx = Math.cos(_this.angle) * _this.speed;
 	    _this.dy = Math.sin(_this.angle) * _this.speed;
@@ -2486,8 +2612,8 @@
 	    key: "tick",
 	    value: function tick() {
 	      this.age++;
-	      this.x += this.dx;
-	      this.y += this.dy;
+	      this._x += this.dx;
+	      this._y += this.dy;
 	
 	      if (this.age > 100) {
 	        this.die();
@@ -2505,7 +2631,7 @@
 	    value: function draw(screen) {
 	
 	      screen.save();
-	      screen.translate(this.x, this.y);
+	      screen.translate(this._x, this._y);
 	      screen.rotate(90 * DEGREE);
 	      screen.rotate(this.angle);
 	
@@ -2527,15 +2653,15 @@
 	    value: function wrapAroundWorld() {
 	      var cw = this.gun.game.canvas.getAttribute("width");
 	      var ch = this.gun.game.canvas.getAttribute("height");
-	      if (this.x < 0) {
-	        this.x = cw - this.x;
-	      } else if (this.x > cw) {
-	        this.x = this.x - cw;
+	      if (this._x < 0) {
+	        this._x = cw - this.x;
+	      } else if (this._x > cw) {
+	        this._x = this._x - cw;
 	      }
-	      if (this.y < 0) {
-	        this.y = ch - this.y;
-	      } else if (this.y > ch) {
-	        this.y = this.y - ch;
+	      if (this._y < 0) {
+	        this._y = ch - this._y;
+	      } else if (this._y > ch) {
+	        this._y = this._y - ch;
 	      }
 	    }
 	  }, {
@@ -2557,12 +2683,12 @@
 	  }, {
 	    key: "globalX",
 	    get: function get() {
-	      return this.x;
+	      return this._x;
 	    }
 	  }, {
 	    key: "globalY",
 	    get: function get() {
-	      return this.y;
+	      return this._y;
 	    }
 	  }, {
 	    key: "globalAngle",
@@ -2578,23 +2704,6 @@
 
 /***/ },
 /* 20 */
-/***/ function(module, exports) {
-
-	"use strict";
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	var KEY_MAP = exports.KEY_MAP = {
-	  SHIFT: 16, //SHIFT KEY,
-	  SPACE: 32, //SHIFT KEY,
-	  ACCELERATE: 87, //W
-	  TURN_COUNTERCLOCKWISE: 65, //S
-	  TURN_CLOCKWISE: 68 //D,
-	};
-
-/***/ },
-/* 21 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -2605,335 +2714,81 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _falcon = __webpack_require__(11);
+	var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
 	
-	var _falcon2 = _interopRequireDefault(_falcon);
+	var _Ship2 = __webpack_require__(6);
 	
-	var _Engine = __webpack_require__(12);
-	
-	var _Engine2 = _interopRequireDefault(_Engine);
-	
-	var _Core = __webpack_require__(15);
-	
-	var _Core2 = _interopRequireDefault(_Core);
-	
-	var _Armor = __webpack_require__(16);
-	
-	var _Armor2 = _interopRequireDefault(_Armor);
-	
-	var _Wing = __webpack_require__(17);
-	
-	var _Wing2 = _interopRequireDefault(_Wing);
-	
-	var _Gun = __webpack_require__(18);
-	
-	var _Gun2 = _interopRequireDefault(_Gun);
-	
-	var _Utils = __webpack_require__(7);
-	
-	var _Constants = __webpack_require__(14);
+	var _Ship3 = _interopRequireDefault(_Ship2);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
-	var SHIP_SCHEMATIC = ["SGS", "WXW", " E "];
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 	
-	var DummyShip = function () {
-	  function DummyShip(game) {
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var DummyShip = function (_Ship) {
+	  _inherits(DummyShip, _Ship);
+	
+	  function DummyShip(game, x, y, angle, schematic) {
 	    _classCallCheck(this, DummyShip);
 	
-	    this.game = game;
-	    this.x = 200;
-	    this.y = 200;
-	    this.pivotX = 21;
-	    this.pivotY = 23;
+	    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(DummyShip).call(this, game, x, y, angle, schematic));
 	
-	    this.width = 30;
-	    this.height = 30;
+	    _this._turningCCW = true;
+	    _this._turningCW = false;
+	    _this.accelerating = true;
+	    _this._firingPrimary = true;
 	
-	    this.mass = 0;
-	
-	    this.dx = 0;
-	    this.dy = 0;
-	    this.enginePower = 0;
-	
-	    this.angle = 60;
-	    this.turnPower = 0;
-	
-	    this.cost = 0;
-	
-	    this.turningCCW = true;
-	    this.turningCW = false;
-	    this.accelerating = true;
-	
-	    this.img = new Image();
-	    this.img.src = _falcon2.default;
-	
-	    this.loadParts();
+	    _this.age = Math.floor(Math.random() * 1000);
+	    return _this;
 	  }
 	
 	  _createClass(DummyShip, [{
-	    key: "loadParts",
-	    value: function loadParts() {
-	      this._modules = [];
-	
-	      for (var row = 0; row < SHIP_SCHEMATIC.length; row++) {
-	        var y = row * _Constants.BLOCK_SIZE;
-	
-	        var partsRow = [];
-	        this._modules.push(partsRow);
-	        var positions = SHIP_SCHEMATIC[row].split("");
-	        for (var pos = 0; pos < positions.length; pos++) {
-	          var x = pos * _Constants.BLOCK_SIZE;
-	
-	          var block = positions[pos];
-	          if (block === "E") {
-	            var engine = new _Engine2.default(this, x, y);
-	            partsRow.push(engine);
-	          } else if (block === "S") {
-	            partsRow.push(new _Armor2.default(this, x, y));
-	          } else if (block === "G") {
-	            var gun = new _Gun2.default(this, x, y);
-	            gun.shooting = true;
-	            partsRow.push(gun);
-	          } else if (block === "W") {
-	            partsRow.push(new _Wing2.default(this, true, x, y));
-	          } else if (block === "X") {
-	            this.pivotX = pos * _Constants.BLOCK_SIZE + _Constants.BLOCK_SIZE / 2;
-	            this.pivotY = row * _Constants.BLOCK_SIZE + _Constants.BLOCK_SIZE / 2;
-	            partsRow.push(new _Core2.default(this, x, y));
-	          } else {
-	            partsRow.push(undefined);
-	          }
-	        }
-	      }
-	
-	      this.recalculateAggregateProperties();
-	    }
-	  }, {
-	    key: "recalculateAggregateProperties",
-	    value: function recalculateAggregateProperties() {
-	      var allParts = [].concat.apply([], this._modules).filter(function (p) {
-	        return p != undefined;
-	      });
-	
-	      this.mass = allParts.map(function (p) {
-	        return p.mass;
-	      }).reduce(function (a, b) {
-	        return a + b;
-	      }, 0);
-	      this.enginePower = allParts.map(function (p) {
-	        return p.enginePower;
-	      }).reduce(function (a, b) {
-	        return a + b;
-	      }, 0);
-	      this.turnPower = allParts.map(function (p) {
-	        return p.turnPower;
-	      }).reduce(function (a, b) {
-	        return a + b;
-	      }, 0);
-	      this.cost = allParts.map(function (p) {
-	        return p.cost;
-	      }).reduce(function (a, b) {
-	        return a + b;
-	      }, 0);
-	
-	      this.modulesThatTick = allParts.filter(function (p) {
-	        return p.tick != undefined;
-	      });
-	    }
-	  }, {
-	    key: "draw",
-	    value: function draw(screen) {
-	      screen.save();
-	      screen.translate(this.x, this.y);
-	      screen.rotate(90 * _Constants.DEGREE);
-	      screen.rotate(this.angle);
-	
-	      screen.translate(-this.pivotX, -this.pivotY);
-	
-	      for (var row = 0; row < this._modules.length; row++) {
-	        var positions = this._modules[row];
-	        for (var pos = 0; pos < positions.length; pos++) {
-	          var block = positions[pos];
-	          if (block != undefined) {
-	            block.draw(screen);
-	          }
-	        }
-	      }
-	      screen.restore();
-	
-	      // this.drawBoundingBox(screen);
-	    }
-	  }, {
-	    key: "collide",
-	    value: function collide(collidedWith) {
-	      // console.log(this.constructor.name + " collided with " + collidedWith.constructor.name);
-	    }
-	  }, {
-	    key: "drawBoundingBox",
-	    value: function drawBoundingBox(screen) {
-	      var bbox = (0, _Utils.boundingBox)(this);
-	      screen.beginPath();
-	      bbox.points.forEach(function (p) {
-	        screen.lineTo(p.x, p.y);
-	      });
-	      screen.closePath();
-	      screen.strokeStyle = "orange";
-	      screen.stroke();
-	    }
-	  }, {
-	    key: "tickModules",
-	    value: function tickModules() {
-	      this.modulesThatTick.forEach(function (m) {
-	        return m.tick();
-	      });
-	    }
-	  }, {
-	    key: "removeModule",
-	    value: function removeModule(moduleToRemove) {
-	      for (var y = 0; y < this._modules.length; y++) {
-	        var row = this._modules[y];
-	        for (var x = 0; x < row.length; x++) {
-	          var module = row[x];
-	
-	          if (module === moduleToRemove) {
-	            this._modules[y][x] = undefined;
-	            this.recalculateAggregateProperties();
-	          }
-	        }
-	      }
-	    }
-	  }, {
 	    key: "tick",
 	    value: function tick() {
-	      this.tickModules();
+	      this.age++;
 	
-	      this.calculateNewAngle();
-	      this.calculateNewSpeeds();
-	      this.moveAccordingToSpeed();
-	
-	      this.wrapAroundWorld();
-	    }
-	  }, {
-	    key: "moveAccordingToSpeed",
-	    value: function moveAccordingToSpeed() {
-	      this.x += this.dx;
-	      this.y += this.dy;
-	    }
-	  }, {
-	    key: "wrapAroundWorld",
-	    value: function wrapAroundWorld() {
-	      var cw = this.game.canvas.getAttribute("width");
-	      var ch = this.game.canvas.getAttribute("height");
-	      if (this.x < 0) {
-	        this.x = cw - this.x;
-	      } else if (this.x > cw) {
-	        this.x = this.x - cw;
+	      if (this.age % 128 == 0) {
+	        this._turningCCW = !this._turningCCW;
 	      }
-	      if (this.y < 0) {
-	        this.y = ch - this.y;
-	      } else if (this.y > ch) {
-	        this.y = this.y - ch;
-	      }
-	    }
-	  }, {
-	    key: "calculateNewAngle",
-	    value: function calculateNewAngle() {
-	      if (this.turningCCW) {
-	        this.angle -= this.turnSpeed;
-	      }
-	      if (this.turningCW) {
-	        this.angle += this.turnSpeed;
-	      }
-	    }
-	  }, {
-	    key: "calculateNewSpeeds",
-	    value: function calculateNewSpeeds() {
-	      if (this.accelerating) {
-	        var accX = Math.cos(this.angle) * this.acceleration;
-	        this.dx = this.dx + accX;
-	
-	        var accY = Math.sin(this.angle) * this.acceleration;
-	        this.dy = this.dy + accY;
+	      if (this.age % 200 == 0) {
+	        this._turningCW = !this._turningCW;
 	      }
 	
-	      var breakX = Math.cos(this.movementAngleRadians) * this.drag;
-	      this.dx = this.dx - breakX;
-	
-	      var breakY = Math.sin(this.movementAngleRadians) * this.drag;
-	      this.dy = this.dy - breakY;
-	
-	      if (this.speed < 0.15) {
-	        this.dx = 0;
-	        this.dy = 0;
-	      }
-	    }
-	  }, {
-	    key: "globalAngle",
-	    get: function get() {
-	      return this.angle;
-	    }
-	  }, {
-	    key: "movementAngleRadians",
-	    get: function get() {
-	      var radians = Math.atan2(this.dy, this.dx);
-	      return radians;
-	    }
-	  }, {
-	    key: "drag",
-	    get: function get() {
-	      return this.physicsDrag;
-	    }
-	  }, {
-	    key: "physicsDrag",
-	    get: function get() {
-	      var fluidDensity = 0.5;
-	      var frontalArea = this.mass;
-	      var speed = Math.sqrt(Math.pow(this.dx, 2) + Math.pow(this.dy, 2));
-	      var dragForce = 0.05 * fluidDensity * frontalArea * Math.pow(speed, 2);
-	
-	      return dragForce / this.mass;
-	    }
-	  }, {
-	    key: "acceleration",
-	    get: function get() {
-	      return this.enginePower / this.mass;
-	    }
-	  }, {
-	    key: "turnSpeed",
-	    get: function get() {
-	      return this.turnPower / this.mass * _Constants.DEGREE;
-	    }
-	  }, {
-	    key: "speed",
-	    get: function get() {
-	      return Math.sqrt(Math.pow(this.dx, 2) + Math.pow(this.dy, 2));
-	    }
-	  }, {
-	    key: "globalX",
-	    get: function get() {
-	      return this.x;
-	    }
-	  }, {
-	    key: "globalY",
-	    get: function get() {
-	      return this.y;
-	    }
-	  }, {
-	    key: "modules",
-	    get: function get() {
-	      return [].concat.apply([], this._modules).filter(function (p) {
-	        return p != undefined;
-	      });
+	      _get(Object.getPrototypeOf(DummyShip.prototype), "tick", this).call(this);
 	    }
 	  }]);
 	
 	  return DummyShip;
-	}();
+	}(_Ship3.default);
 	
 	exports.default = DummyShip;
+
+/***/ },
+/* 21 */
+/***/ function(module, exports) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	var KEY_MAP = exports.KEY_MAP = {
+	  SHIFT: 16, //SHIFT KEY,
+	  SPACE: 32, //SHIFT KEY,
+	  W: 87,
+	  S: 65,
+	  D: 68,
+	  LEFT: 37,
+	  RIGHT: 39,
+	  UP: 38,
+	  ENTER: 13,
+	  CTRL: 17,
+	  NUM_0: 96
+	
+	};
 
 /***/ }
 /******/ ]);

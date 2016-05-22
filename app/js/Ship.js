@@ -13,13 +13,17 @@ var _enginePower, _turnPower, _mass, _cost;
 
 var _turningCW, _turningCCW, _accelerating, _firingPrimary;
 var _modules;
-//
+
+const DRAW_BOUNDING_BOX = false;
 
 export default class Ship extends Sprite {
 
   constructor(game, x, y, angle, schematic) {
     super();
-    this.schematic = schematic;
+    this.schematic = schematic.filter((row)=>{
+      return !row.match(/^\s*$/)
+    });
+
     this.game = game;
     this._x = x;
     this._y = y;
@@ -108,6 +112,8 @@ export default class Ship extends Sprite {
       var partsRow = [];
       this._modules.push(partsRow);
       var positions = this.schematic[row].split("");
+
+
       for (var pos = 0; pos < positions.length; pos++) {
         var x = pos*BLOCK_SIZE;
 
@@ -211,7 +217,9 @@ export default class Ship extends Sprite {
     }
     screen.restore();
 
-    // this.drawBoundingBox(screen);
+    if(DRAW_BOUNDING_BOX){
+      this.drawBoundingBox(screen);
+    }
   }
 
   get modules(){
@@ -230,7 +238,7 @@ export default class Ship extends Sprite {
   }
 
   get physicsDrag() {
-    const fluidDensity = 0.5;
+    const fluidDensity = 0.2;
     const frontalArea = this.mass;
     const speed = Math.sqrt(Math.pow(this._dx,2)+Math.pow(this._dy,2));
     const dragForce = 0.05*fluidDensity*frontalArea*Math.pow(speed,2);
@@ -239,11 +247,11 @@ export default class Ship extends Sprite {
   }
 
   get acceleration() {
-    return (this.enginePower / this.mass);
+    return this.enginePower / this.mass;
   }
 
   get turnSpeed() {
-    return this.turnPower / this.mass * DEGREE;
+    return Math.pow(this.turnPower,2) / Math.pow(this.mass,2);
   }
   get angle() {
     return this._angle;
@@ -307,7 +315,7 @@ export default class Ship extends Sprite {
     var breakY = Math.sin(this.movementAngleRadians)*this.drag;
     this._dy = this._dy - breakY;
 
-    if(this.speed < 0.15){
+    if(this.speed < 0.4 && !this.accelerating){
       this._dx = 0;
       this._dy = 0;
     }
@@ -316,7 +324,7 @@ export default class Ship extends Sprite {
   get speed() {
     return Math.sqrt(Math.pow(this._dx,2)+Math.pow(this._dy,2));
   }
-  
+
   die(){
     console.log("Ship destroyed!");
     this.game.removeShip(this);

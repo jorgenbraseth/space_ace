@@ -31,3 +31,10 @@ export function isSpritesColliding(s1, s2){
 
   return SAT.testPolygonPolygon(bb1,bb2);
 }
+
+export function isPointInSprite(x,y,sprite){
+  var bb = boundingBox(sprite);
+  var point = new V(x,y);
+
+  return SAT.pointInPolygon(point,bb);
+}

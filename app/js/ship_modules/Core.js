@@ -6,7 +6,7 @@ import {BLOCK_SIZE} from "../Constants"
 var x;
 var y;
 
-const MASS = 1;
+const MASS = 25;
 const ENGINE_POWER = 1;
 const TURN_POWER = 5;
 const COST = 0;

@@ -1,5 +1,3 @@
-const TOOLBAR_HEIGHT = 120;
-
 export default class Renderer {
   constructor(game){
     this.game = game;
@@ -9,7 +7,6 @@ export default class Renderer {
     this.canvas.style.cursor = "none";
     this.screenWidth = canvas.getAttribute("width");
     this.screenHeight = canvas.getAttribute("height");
-
   }
 
   render(sprite_lists){

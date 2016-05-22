@@ -57,11 +57,8 @@ export default class Game {
       "  E "
     ];
 
-
-
-
-    LAYERS.SHIPS.push(new DummyShip(this,Math.floor(Math.random()*2000),Math.floor(Math.random()*2000),0,AI_SCHEMATIC));
-    LAYERS.SHIPS.push(new DummyShip(this,Math.floor(Math.random()*2000),Math.floor(Math.random()*2000),0,AI_SCHEMATIC));
+    // LAYERS.SHIPS.push(new DummyShip(this,Math.floor(Math.random()*2000),Math.floor(Math.random()*2000),0,AI_SCHEMATIC));
+    // LAYERS.SHIPS.push(new DummyShip(this,Math.floor(Math.random()*2000),Math.floor(Math.random()*2000),0,AI_SCHEMATIC));
 
     this.loadNextP1Ship();
     this.loadNextP2Ship();
@@ -149,12 +146,12 @@ export default class Game {
     setInterval(function(){
       this.tick();
       this.draw();
-    }.bind(this),1000/60);
+    }.bind(this),1000/60); //TODO: replace with window.requestAnimationFrame(callback) ?
 
   }
 
   spawn(sprite, layer = "SHOTS"){
-    LAYERS.SHOTS.push(sprite);
+    LAYERS[layer].push(sprite);
   }
 
 

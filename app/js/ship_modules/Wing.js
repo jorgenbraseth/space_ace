@@ -2,9 +2,9 @@ import ShipModule from "./ShipModule";
 
 import {BLOCK_SIZE} from "../Constants"
 
-const MASS = 15;
+const MASS = 25;
 const ENGINE_POWER = 0;
-const TURN_POWER = 350;
+const TURN_POWER = 45;
 const COST = 5;
 const HITPOINTS = 10;
 const POWER_GENERATION = 0;

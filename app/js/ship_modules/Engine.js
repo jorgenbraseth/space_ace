@@ -4,7 +4,7 @@ import {BLOCK_SIZE} from "../Constants"
 
 
 const MASS = 5;
-const ENGINE_POWER = 100;
+const ENGINE_POWER = 25;
 const TURN_POWER = 5;
 const COST = 50;
 const HITPOINTS = 5;
@@ -44,9 +44,5 @@ export default class Engine extends ShipModule {
 
     screen.restore();
 
-
-    // var newScreen = screen.canvas.getContext('2d');
-    // newScreen.restore();
-    // this.drawBoundingBox(newScreen);
   }
 }
