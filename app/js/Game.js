@@ -1,6 +1,6 @@
 import Renderer from "./Renderer";
 import KeyControl from "./KeyControl";
-import Ship from "./ControllableShip";
+import ControllableShip from "./ControllableShip";
 import DummyShip from "./DummyShip";
 
 import { isSpritesColliding } from "./Utils"
@@ -32,7 +32,7 @@ export default class Game {
   init(){
     this.globalTime = 0;
 
-    LAYERS.SHIPS.push(new Ship(this));
+    LAYERS.SHIPS.push(new ControllableShip(this));
     LAYERS.SHIPS.push(new DummyShip(this));
   }
 

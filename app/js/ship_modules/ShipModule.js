@@ -88,7 +88,6 @@ export default class ShipModule extends Sprite {
 
     const x = this.ship.x + Math.cos(shipAngle)*(shipCenterOffestX) - Math.sin(shipAngle)*shipCenterOffestY;
     const y = this.ship.y + Math.sin(shipAngle)*(shipCenterOffestX) + Math.cos(shipAngle)*shipCenterOffestY;
-
     return [x,y];
   }
 

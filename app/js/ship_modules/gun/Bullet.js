@@ -8,6 +8,7 @@ export default class Bullet extends Sprite {
 
   constructor(gun, x,y,angle){
     super();
+
     this.gun = gun;
     this.x = x;
     this.y = y;
