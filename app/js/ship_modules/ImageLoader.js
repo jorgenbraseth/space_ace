@@ -7,7 +7,9 @@ export function loadImage(gfx, colorIt = "#999999"){
   ];
   var xmlDoc = parser.parseFromString(data[1], "text/xml");
   var color = xmlDoc.getElementById("teamColor");
-  color.style.fill = colorIt;
+  if(color){
+    color.style.fill = colorIt;
+  }
 
   data[1] = new XMLSerializer().serializeToString(xmlDoc.documentElement);
 

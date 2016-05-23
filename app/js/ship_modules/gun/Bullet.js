@@ -54,7 +54,7 @@ export default class Bullet extends Sprite {
     screen.lineTo(1,0);
 
     screen.closePath();
-    screen.fillStyle = "red";
+    screen.fillStyle = this.gun.ship.color;
     screen.fill();
 
     screen.restore();

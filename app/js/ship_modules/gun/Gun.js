@@ -11,6 +11,11 @@ const COST = 25;
 const HITPOINTS = 10;
 const POWER_GENERATION = 0;
 
+
+import {loadImage} from "../ImageLoader"
+import gfx_base from "./gun_base.svg";
+import gfx_turret from "./gun_turret.svg";
+
 export default class Gun extends ShipModule {
 
   constructor(ship, x, y){
@@ -18,31 +23,19 @@ export default class Gun extends ShipModule {
 
     this.timeToReload = 25;
     this.reloadTimeLeft = 0;
+
+    this.img_base = loadImage(gfx_base, ship.color);
+    this.img_turret = loadImage(gfx_turret, ship.color);
   }
 
   draw(screen){
     screen.save();
     screen.translate(this.x,this.y);
 
-    screen.fillStyle = "#333333";
-    screen.beginPath();
+    screen.drawImage(this.img_base,0,0,this.width,this.height);
+    screen.drawImage(this.img_turret,0,0,this.width,this.height);
 
-    screen.lineTo(BLOCK_SIZE,BLOCK_SIZE);
-    screen.lineTo(0,BLOCK_SIZE);
-    screen.lineTo(0,BLOCK_SIZE*0.3);
-
-    screen.lineTo(BLOCK_SIZE*0.3,BLOCK_SIZE*0.3);
-    screen.lineTo(BLOCK_SIZE*0.3,0);
-    screen.lineTo(BLOCK_SIZE*0.7,0);
-    screen.lineTo(BLOCK_SIZE*0.7,BLOCK_SIZE*0.3);
-
-    screen.lineTo(BLOCK_SIZE,BLOCK_SIZE*0.3);
-
-
-    screen.closePath();
-    screen.fill();
-
-    screen.fillStyle = "#ffff00";
+    screen.fillStyle = this.ship.color;
     var maxWidth = this.width-1;
     screen.fillRect(1,this.height-2,maxWidth*(1-this.reloadTimeLeft/this.timeToReload),1);
 

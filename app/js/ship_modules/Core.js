@@ -13,25 +13,23 @@ const COST = 0;
 const HITPOINTS = 5;
 const POWER_GENERATION = 1;
 
+import {loadImage} from "./ImageLoader"
+import gfx from "./core.svg";
+
 export default class Core extends ShipModule {
 
 
   constructor(ship, x,y){
     super(ship, x, y, MASS, ENGINE_POWER, TURN_POWER, COST, HITPOINTS,POWER_GENERATION);
+
+    this.img = loadImage(gfx, ship.color);
   }
 
   draw(screen){
     screen.save();
     screen.translate(this.x,this.y);
-    screen.fillStyle = "#666666";
-    screen.fillRect(0,0,BLOCK_SIZE,BLOCK_SIZE);
 
-    screen.fillStyle = "#ff3300";
-    screen.beginPath();
-    screen.arc(BLOCK_SIZE/2,BLOCK_SIZE/2,BLOCK_SIZE/3,0,2*Math.PI);
-    screen.closePath();
-    screen.fill();
-
+    screen.drawImage(this.img,0,0,this.width,this.height);
     screen.restore();
   }
 

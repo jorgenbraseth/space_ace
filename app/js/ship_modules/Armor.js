@@ -21,9 +21,7 @@ export default class Armor extends ShipModule {
   draw(screen){
     screen.save();
     screen.translate(this.x,this.y);
-    screen.fillStyle = "#999999";
     screen.drawImage(this.img,0,0,this.width,this.height);
-    // screen.fillRect(0,0,BLOCK_SIZE,BLOCK_SIZE);
     screen.restore();
   }
 }

@@ -18,7 +18,7 @@ const DRAW_BOUNDING_BOX = false;
 
 export default class Ship extends Sprite {
 
-  constructor(game, x, y, angle, schematic, color = "#999999") {
+  constructor(game, x, y, angle, schematic, color = "#ff6633") {
     super();
     this.schematic = schematic.filter((row)=>{
       return !row.match(/^\s*$/)
@@ -104,7 +104,21 @@ export default class Ship extends Sprite {
     }
   }
 
+  findPivot() {
+    for (var row = 0; row < this.schematic.length; row++) {
+      var positions = this.schematic[row].split("");
+      for (var pos = 0; pos < positions.length; pos++) {
+        var block = positions[pos];
+        if (block === "X") {
+          this._pivotX = pos * BLOCK_SIZE + BLOCK_SIZE / 2;
+          this._pivotY = row * BLOCK_SIZE + BLOCK_SIZE / 2;
+        }
+      }
+    }
+  }
   loadParts(){
+    this.findPivot();
+
     this._modules = [];
 
     for (var row = 0; row < this.schematic.length; row++) {
@@ -128,10 +142,9 @@ export default class Ship extends Sprite {
           var gun = new Gun(this,x,y);
           partsRow.push(gun);
         }else if(block === "W"){
-          partsRow.push(new Wing(this, true,x,y));
+          partsRow.push(new Wing(this,x,y));
         }else if(block === "X"){
-          this._pivotX = pos*BLOCK_SIZE + BLOCK_SIZE/2;
-          this._pivotY = row*BLOCK_SIZE + BLOCK_SIZE/2;
+
           partsRow.push(new Core(this,x,y));
         }else{
           partsRow.push(undefined);

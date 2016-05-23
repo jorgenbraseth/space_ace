@@ -10,10 +10,15 @@ const COST = 50;
 const HITPOINTS = 5;
 const POWER_GENERATION = 0;
 
+import {loadImage} from "./ImageLoader"
+import gfx from "./engine.svg";
+
 export default class Engine extends ShipModule {
 
   constructor(ship,x,y){
     super(ship, x, y, MASS, ENGINE_POWER, TURN_POWER, COST, HITPOINTS,POWER_GENERATION, BLOCK_SIZE, BLOCK_SIZE);
+
+    this.img = loadImage(gfx, ship.color)
   }
 
   draw(screen){
@@ -22,7 +27,7 @@ export default class Engine extends ShipModule {
 
 
     if(this.ship.accelerating){
-      screen.fillStyle = "#66ff66";
+      screen.fillStyle = this.ship.color;
       screen.beginPath();
       screen.lineTo(0,0);
       screen.lineTo(BLOCK_SIZE,0);
@@ -31,16 +36,7 @@ export default class Engine extends ShipModule {
       screen.fill();
     }
 
-    screen.fillStyle = "#00aa00";
-    screen.beginPath();
-    screen.lineTo(0,0);
-    screen.lineTo(BLOCK_SIZE,0);
-    screen.lineTo(BLOCK_SIZE,BLOCK_SIZE/2);
-    screen.lineTo(BLOCK_SIZE/2,BLOCK_SIZE/3);
-    screen.lineTo(0,BLOCK_SIZE/2);
-    screen.closePath();
-    screen.fill();
-
+    screen.drawImage(this.img,0,0,this.width,this.height);
 
     screen.restore();
 
