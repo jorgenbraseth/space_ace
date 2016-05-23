@@ -2,8 +2,8 @@ import Ship from "./Ship"
 
 export default class ControllableShip extends Ship {
 
-  constructor(game, x, y , angle, schematic, keyBindings) {
-    super(game, x,y,angle, schematic);
+  constructor(game, x, y , angle, schematic, keyBindings,color) {
+    super(game, x,y,angle, schematic,color);
     this.keyBindings = keyBindings;
 
     this.bindKeys(keyBindings);

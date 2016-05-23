@@ -71,7 +71,8 @@ export default class Game {
       Math.floor(Math.random()*this.renderer.screenHeight),
       0,
       this.p1_ships.pop(),
-      PLAYER1_CONTROLS
+      PLAYER1_CONTROLS,
+      "#cc9900"
     );
 
     LAYERS.SHIPS.push(this.p1);
@@ -83,7 +84,8 @@ export default class Game {
       Math.floor(Math.random()*this.renderer.screenHeight),
       0,
       this.p2_ships.pop(),
-      PLAYER2_CONTROLS
+      PLAYER2_CONTROLS,
+      "#0099cc"
     );
     LAYERS.SHIPS.push(this.p2);
   }

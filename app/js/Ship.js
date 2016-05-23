@@ -18,12 +18,13 @@ const DRAW_BOUNDING_BOX = false;
 
 export default class Ship extends Sprite {
 
-  constructor(game, x, y, angle, schematic) {
+  constructor(game, x, y, angle, schematic, color = "#999999") {
     super();
     this.schematic = schematic.filter((row)=>{
       return !row.match(/^\s*$/)
     });
 
+    this.color = color;
     this.game = game;
     this._x = x;
     this._y = y;

@@ -1,6 +1,7 @@
 import ShipModule from "./ShipModule";
+import {loadImage} from "./ImageLoader"
+import gfx from "./box.svg";
 
-import {BLOCK_SIZE} from "../Constants"
 
 const MASS = 300;
 const ENGINE_POWER = 0;
@@ -13,13 +14,16 @@ export default class Armor extends ShipModule {
 
   constructor(ship, x,y){
     super(ship, x, y, MASS, ENGINE_POWER, TURN_POWER, COST, HITPOINTS,POWER_GENERATION);
+
+    this.img = loadImage(gfx, ship.color)
   }
 
   draw(screen){
     screen.save();
     screen.translate(this.x,this.y);
     screen.fillStyle = "#999999";
-    screen.fillRect(0,0,BLOCK_SIZE,BLOCK_SIZE);
+    screen.drawImage(this.img,0,0,this.width,this.height);
+    // screen.fillRect(0,0,BLOCK_SIZE,BLOCK_SIZE);
     screen.restore();
   }
 }
