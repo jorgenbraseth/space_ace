@@ -57,7 +57,7 @@
 	
 	var _Game2 = _interopRequireDefault(_Game);
 	
-	var _ShipPicker = __webpack_require__(22);
+	var _ShipPicker = __webpack_require__(34);
 	
 	var _ShipPicker2 = _interopRequireDefault(_ShipPicker);
 	
@@ -65,7 +65,7 @@
 	
 	var canvas = document.getElementById('game');
 	
-	var SCHEMS = [["G G", "EXW"], ["  GGG  ", " GWSWG ", "SEWXWES", "  EEE  "], ["  G", " GGG", "GGGGG", "WWXWW  ", "EEEEE  "], ["     SSS        ", "  SSSGGGSSS     ", " SGGGGGGGGGS    ", "SWWGGGGGGGWWS   ", "SWWWWWXWWWWWS   ", "SWW WWWWW WWS   ", "EEWSSWWWSSWEE   ", "  EEESSSEEE     ", "     EEE        "]];
+	var SCHEMS = [["WGB", " XE"], ["  GGG  ", " GWSWG ", "SEWXWES", "  EEE  "], ["  G", " GGG", "GGGGG", "WWXWW  ", "EEEEE  "], ["     SSS        ", "  SSSGGGSSS     ", " SGGGGGGGGGS    ", "SWWGGGGGGGWWS   ", "SWWWWWXWWWWWS   ", "SWW WWWWW WWS   ", "EEWSSWWWSSWEE   ", "  EEESSSEEE     ", "     EEE        "], ["WBBBW", " EXE"], ["WBW", "EXE"], ["     SSS        ", "  SSSBBBSSS     ", " SGGGBBBGGGS    ", "SWWGGBBBGGWWS   ", "SWWWWWXWWWWWS   ", "SWW WWWWW WWS   ", "EEWSSWWWSSWEE   ", "  EEESSSEEE     ", "     EEE        "]];
 	
 	new _ShipPicker2.default(canvas, SCHEMS, "Select ship for Player 1").pickShips(function (schem) {
 	  var s1 = schem;
@@ -101,20 +101,29 @@
 	
 	var _ControllableShip2 = _interopRequireDefault(_ControllableShip);
 	
-	var _DummyShip = __webpack_require__(20);
+	var _DummyShip = __webpack_require__(32);
 	
 	var _DummyShip2 = _interopRequireDefault(_DummyShip);
 	
+	var _sat = __webpack_require__(9);
+	
+	var _sat2 = _interopRequireDefault(_sat);
+	
 	var _Utils = __webpack_require__(8);
 	
-	var _Keys = __webpack_require__(21);
+	var _Keys = __webpack_require__(33);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
+	var Response = _sat2.default.Response;
+	var V = _sat2.default.Vector;
+	var B = _sat2.default.Box;
+	
 	var LAYERS = {
 	  BACKGROUND: [],
+	  UNDER_SHIPS: [],
 	  SHIPS: [],
 	  SHOTS: [],
 	  OVERLAY: [],
@@ -156,23 +165,20 @@
 	
 	      var AI_SCHEMATIC = [" WXG ", "  E "];
 	
-	      // LAYERS.SHIPS.push(new DummyShip(this,Math.floor(Math.random()*2000),Math.floor(Math.random()*2000),0,AI_SCHEMATIC));
-	      // LAYERS.SHIPS.push(new DummyShip(this,Math.floor(Math.random()*2000),Math.floor(Math.random()*2000),0,AI_SCHEMATIC));
-	
 	      this.loadNextP1Ship();
 	      this.loadNextP2Ship();
 	    }
 	  }, {
 	    key: "loadNextP1Ship",
 	    value: function loadNextP1Ship() {
-	      this.p1 = new _ControllableShip2.default(this, Math.floor(Math.random() * this.renderer.screenWidth), Math.floor(Math.random() * this.renderer.screenHeight), 0, this.p1_ships.pop(), PLAYER1_CONTROLS);
+	      this.p1 = new _ControllableShip2.default(this, Math.floor(Math.random() * this.renderer.screenWidth), Math.floor(Math.random() * this.renderer.screenHeight), 0, this.p1_ships.pop(), PLAYER1_CONTROLS, "#cc9900");
 	
 	      LAYERS.SHIPS.push(this.p1);
 	    }
 	  }, {
 	    key: "loadNextP2Ship",
 	    value: function loadNextP2Ship() {
-	      this.p2 = new _ControllableShip2.default(this, Math.floor(Math.random() * this.renderer.screenWidth), Math.floor(Math.random() * this.renderer.screenHeight), 0, this.p2_ships.pop(), PLAYER2_CONTROLS);
+	      this.p2 = new _ControllableShip2.default(this, Math.floor(Math.random() * this.renderer.screenWidth), Math.floor(Math.random() * this.renderer.screenHeight), 0, this.p2_ships.pop(), PLAYER2_CONTROLS, "#0099cc");
 	      LAYERS.SHIPS.push(this.p2);
 	    }
 	  }, {
@@ -183,10 +189,12 @@
 	      });
 	    }
 	  }, {
-	    key: "removeShot",
-	    value: function removeShot(toRemove) {
-	      var i = LAYERS.SHOTS.indexOf(toRemove);
-	      LAYERS.SHOTS.splice(i, 1);
+	    key: "removeFromLayer",
+	    value: function removeFromLayer(toRemove) {
+	      var layer = arguments.length <= 1 || arguments[1] === undefined ? "SHOTS" : arguments[1];
+	
+	      var i = LAYERS[layer].indexOf(toRemove);
+	      LAYERS[layer].splice(i, 1);
 	    }
 	  }, {
 	    key: "removeShip",
@@ -202,14 +210,24 @@
 	    key: "handleCollisions",
 	    value: function handleCollisions() {
 	      LAYERS.SHIPS.forEach(function (ship) {
-	        LAYERS.SHOTS.forEach(function (shot) {
+	        LAYERS.SHOTS.concat(LAYERS.UNDER_SHIPS).forEach(function (shot) {
 	          if ((0, _Utils.isSpritesColliding)(ship, shot) && shot.gun.ship != ship) {
+	
+	            var closestCollison = 1000000;
+	            var collidingModule = undefined;
+	
 	            ship.modules.forEach(function (module) {
-	              if ((0, _Utils.isSpritesColliding)(module, shot)) {
-	                ship.collide(shot);
-	                shot.collide(module);
+	              var lengthToCollision = new V(module.pivotX, module.pivotY).sub(new V(shot.pivotX, shot.pivotY)).len2();
+	
+	              if ((0, _Utils.isSpritesColliding)(module, shot) && lengthToCollision < closestCollison) {
+	                collidingModule = module;
 	              }
 	            });
+	
+	            if (collidingModule !== undefined) {
+	              shot.collide(collidingModule);
+	              collidingModule.collide(shot);
+	            }
 	          }
 	        });
 	      });
@@ -220,6 +238,7 @@
 	      this.globalTime++;
 	
 	      this.tickLayer(LAYERS.BACKGROUND);
+	      this.tickLayer(LAYERS.UNDER_SHIPS);
 	      this.tickLayer(LAYERS.SHIPS);
 	      this.tickLayer(LAYERS.SHOTS);
 	      this.tickLayer(LAYERS.OVERLAY);
@@ -230,7 +249,7 @@
 	  }, {
 	    key: "draw",
 	    value: function draw() {
-	      this.renderer.render([LAYERS.SHIPS, LAYERS.SHOTS]);
+	      this.renderer.render([LAYERS.UNDER_SHIPS, LAYERS.SHIPS, LAYERS.SHOTS]);
 	    }
 	  }, {
 	    key: "run",
@@ -239,8 +258,18 @@
 	
 	      setInterval(function () {
 	        this.tick();
-	        this.draw();
 	      }.bind(this), 1000 / 60); //TODO: replace with window.requestAnimationFrame(callback) ?
+	
+	      this.startAnimLoop();
+	    }
+	  }, {
+	    key: "startAnimLoop",
+	    value: function startAnimLoop() {
+	      var that = this;
+	      window.requestAnimationFrame(function () {
+	        that.draw();
+	        that.startAnimLoop();
+	      });
 	    }
 	  }, {
 	    key: "spawn",
@@ -411,10 +440,10 @@
 	var ControllableShip = function (_Ship) {
 	  _inherits(ControllableShip, _Ship);
 	
-	  function ControllableShip(game, x, y, angle, schematic, keyBindings) {
+	  function ControllableShip(game, x, y, angle, schematic, keyBindings, color) {
 	    _classCallCheck(this, ControllableShip);
 	
-	    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(ControllableShip).call(this, game, x, y, angle, schematic));
+	    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(ControllableShip).call(this, game, x, y, angle, schematic, color));
 	
 	    _this.keyBindings = keyBindings;
 	
@@ -480,21 +509,25 @@
 	
 	var _Engine2 = _interopRequireDefault(_Engine);
 	
-	var _Core = __webpack_require__(15);
+	var _Core = __webpack_require__(17);
 	
 	var _Core2 = _interopRequireDefault(_Core);
 	
-	var _Armor = __webpack_require__(16);
+	var _Armor = __webpack_require__(19);
 	
 	var _Armor2 = _interopRequireDefault(_Armor);
 	
-	var _Wing = __webpack_require__(17);
+	var _Wing = __webpack_require__(21);
 	
 	var _Wing2 = _interopRequireDefault(_Wing);
 	
-	var _Gun = __webpack_require__(18);
+	var _Gun = __webpack_require__(24);
 	
 	var _Gun2 = _interopRequireDefault(_Gun);
+	
+	var _BeamWeapon = __webpack_require__(28);
+	
+	var _BeamWeapon2 = _interopRequireDefault(_BeamWeapon);
 	
 	var _Constants = __webpack_require__(14);
 	
@@ -518,6 +551,8 @@
 	  _inherits(Ship, _Sprite);
 	
 	  function Ship(game, x, y, angle, schematic) {
+	    var color = arguments.length <= 5 || arguments[5] === undefined ? "#ff6633" : arguments[5];
+	
 	    _classCallCheck(this, Ship);
 	
 	    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Ship).call(this));
@@ -526,6 +561,7 @@
 	      return !row.match(/^\s*$/);
 	    });
 	
+	    _this.color = color;
 	    _this.game = game;
 	    _this._x = x;
 	    _this._y = y;
@@ -561,8 +597,24 @@
 	      }
 	    }
 	  }, {
+	    key: "findPivot",
+	    value: function findPivot() {
+	      for (var row = 0; row < this.schematic.length; row++) {
+	        var positions = this.schematic[row].split("");
+	        for (var pos = 0; pos < positions.length; pos++) {
+	          var block = positions[pos];
+	          if (block === "X") {
+	            this._pivotX = pos * _Constants.BLOCK_SIZE + _Constants.BLOCK_SIZE / 2;
+	            this._pivotY = row * _Constants.BLOCK_SIZE + _Constants.BLOCK_SIZE / 2;
+	          }
+	        }
+	      }
+	    }
+	  }, {
 	    key: "loadParts",
 	    value: function loadParts() {
+	      this.findPivot();
+	
 	      this._modules = [];
 	
 	      for (var row = 0; row < this.schematic.length; row++) {
@@ -585,10 +637,11 @@
 	            var gun = new _Gun2.default(this, x, y);
 	            partsRow.push(gun);
 	          } else if (block === "W") {
-	            partsRow.push(new _Wing2.default(this, true, x, y));
+	            partsRow.push(new _Wing2.default(this, x, y));
+	          } else if (block === "B") {
+	            partsRow.push(new _BeamWeapon2.default(this, x, y));
 	          } else if (block === "X") {
-	            this._pivotX = pos * _Constants.BLOCK_SIZE + _Constants.BLOCK_SIZE / 2;
-	            this._pivotY = row * _Constants.BLOCK_SIZE + _Constants.BLOCK_SIZE / 2;
+	
 	            partsRow.push(new _Core2.default(this, x, y));
 	          } else {
 	            partsRow.push(undefined);
@@ -682,7 +735,7 @@
 	      screen.restore();
 	
 	      if (DRAW_BOUNDING_BOX) {
-	        this.drawBoundingBox(screen);
+	        this.drawCollisionPoly(screen);
 	      }
 	    }
 	  }, {
@@ -927,15 +980,25 @@
 	    key: "tick",
 	    value: function tick() {}
 	  }, {
-	    key: "drawBoundingBox",
-	    value: function drawBoundingBox(screen) {
-	      var bbox = (0, _Utils.boundingBox)(this);
+	    key: "collide",
+	    value: function collide() {}
+	  }, {
+	    key: "drawCollisionPoly",
+	    value: function drawCollisionPoly(screen) {
+	      var poly = this.collisionPoly;
 	      screen.beginPath();
-	      bbox.points.forEach(function (p) {
-	        screen.lineTo(p.x, p.y);
-	      });
+	
+	      if (poly.points[0]) {
+	        poly.points.forEach(function (p) {
+	          screen.lineTo(p.x, p.y);
+	        });
+	      } else {
+	        console.log(poly);
+	        screen.lineTo(0, 0);
+	        screen.lineTo(poly.points.x, poly.points.y);
+	      }
 	      screen.closePath();
-	      screen.strokeStyle = "orange";
+	      screen.strokeStyle = "blue";
 	      screen.stroke();
 	    }
 	  }, {
@@ -957,11 +1020,6 @@
 	    key: "drawParent",
 	    get: function get() {}
 	  }, {
-	    key: "collide",
-	    get: function get() {
-	      throw "Unimplemented collide in " + this.constructor.name;
-	    }
-	  }, {
 	    key: "pivotX",
 	    get: function get() {
 	      return this.width / 2;
@@ -970,6 +1028,11 @@
 	    key: "pivotY",
 	    get: function get() {
 	      return this.height / 2;
+	    }
+	  }, {
+	    key: "collisionPoly",
+	    get: function get() {
+	      return (0, _Utils.boundingBox)(this);
 	    }
 	  }]);
 	
@@ -997,6 +1060,7 @@
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
+	var Response = _sat2.default.Response;
 	var V = _sat2.default.Vector;
 	var B = _sat2.default.Box;
 	
@@ -1021,11 +1085,8 @@
 	
 	function isSpritesColliding(s1, s2) {
 	  if (s1 === s2) return false;
-	
-	  var bb1 = boundingBox(s1);
-	  var bb2 = boundingBox(s2);
-	
-	  return _sat2.default.testPolygonPolygon(bb1, bb2);
+	  var isColliding = _sat2.default.testPolygonPolygon(s1.collisionPoly, s2.collisionPoly);
+	  return isColliding;
 	}
 	
 	function isPointInSprite(x, y, sprite) {
@@ -2065,6 +2126,12 @@
 	
 	var _Constants = __webpack_require__(14);
 	
+	var _ImageLoader = __webpack_require__(15);
+	
+	var _engine = __webpack_require__(16);
+	
+	var _engine2 = _interopRequireDefault(_engine);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -2086,7 +2153,10 @@
 	  function Engine(ship, x, y) {
 	    _classCallCheck(this, Engine);
 	
-	    return _possibleConstructorReturn(this, Object.getPrototypeOf(Engine).call(this, ship, x, y, MASS, ENGINE_POWER, TURN_POWER, COST, HITPOINTS, POWER_GENERATION, _Constants.BLOCK_SIZE, _Constants.BLOCK_SIZE));
+	    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Engine).call(this, ship, x, y, MASS, ENGINE_POWER, TURN_POWER, COST, HITPOINTS, POWER_GENERATION, _Constants.BLOCK_SIZE, _Constants.BLOCK_SIZE));
+	
+	    _this.img = (0, _ImageLoader.loadImage)(_engine2.default, ship.color);
+	    return _this;
 	  }
 	
 	  _createClass(Engine, [{
@@ -2096,7 +2166,7 @@
 	      screen.translate(this.x, this.y);
 	
 	      if (this.ship.accelerating) {
-	        screen.fillStyle = "#66ff66";
+	        screen.fillStyle = this.ship.color;
 	        screen.beginPath();
 	        screen.lineTo(0, 0);
 	        screen.lineTo(_Constants.BLOCK_SIZE, 0);
@@ -2105,15 +2175,7 @@
 	        screen.fill();
 	      }
 	
-	      screen.fillStyle = "#00aa00";
-	      screen.beginPath();
-	      screen.lineTo(0, 0);
-	      screen.lineTo(_Constants.BLOCK_SIZE, 0);
-	      screen.lineTo(_Constants.BLOCK_SIZE, _Constants.BLOCK_SIZE / 2);
-	      screen.lineTo(_Constants.BLOCK_SIZE / 2, _Constants.BLOCK_SIZE / 3);
-	      screen.lineTo(0, _Constants.BLOCK_SIZE / 2);
-	      screen.closePath();
-	      screen.fill();
+	      screen.drawImage(this.img, 0, 0, this.width, this.height);
 	
 	      screen.restore();
 	    }
@@ -2297,6 +2359,65 @@
 
 /***/ },
 /* 15 */
+/***/ function(module, exports) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.loadImage = loadImage;
+	
+	var cache = {};
+	
+	var hc = document.getElementById("helperCanvas");
+	
+	function loadImage(gfx) {
+	  var colorIt = arguments.length <= 1 || arguments[1] === undefined ? "#999999" : arguments[1];
+	
+	  var cacheKey = gfx + colorIt;
+	  if (cache[cacheKey]) {
+	    return cache[cacheKey];
+	  }
+	  var parser = new DOMParser();
+	  var data = [unescape(gfx).substring(0, gfx.indexOf(",") + 1), unescape(gfx).substring(gfx.indexOf(",") + 1)];
+	  var xmlDoc = parser.parseFromString(data[1], "text/xml");
+	  var color = xmlDoc.getElementById("teamColor");
+	  if (color) {
+	    color.style.fill = colorIt;
+	  }
+	
+	  data[1] = new XMLSerializer().serializeToString(xmlDoc.documentElement);
+	
+	  cache[cacheKey] = renderSvg(data[0] + data[1], 16, 16);
+	  return cache[cacheKey];
+	}
+	
+	function renderSvg(svg, w, h) {
+	  var img = new Image();
+	  img.src = svg;
+	
+	  hc.setAttribute("width", w);
+	  hc.setAttribute("height", h);
+	
+	  var ctx = hc.getContext('2d');
+	  ctx.clearRect(0, 0, w, h);
+	  ctx.drawImage(img, 0, 0, w, h);
+	  var imgdata = hc.toDataURL("image/png");
+	
+	  var rimg = new Image();
+	  rimg.src = imgdata;
+	  return rimg;
+	}
+
+/***/ },
+/* 16 */
+/***/ function(module, exports) {
+
+	module.exports = "data:image/svg+xml;charset=utf8,%3C?xml version='1.0' encoding='UTF-8' standalone='no'?%3E %3C!-- Created with Inkscape (http://www.inkscape.org/) --%3E %3Csvg xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:cc='http://creativecommons.org/ns%23' xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns%23' xmlns:svg='http://www.w3.org/2000/svg' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' xmlns:sodipodi='http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd' xmlns:inkscape='http://www.inkscape.org/namespaces/inkscape' width='100' height='100' viewBox='0 0 100 100' id='svg2' version='1.1' inkscape:version='0.91 r13725' sodipodi:docname='engine.svg'%3E %3Cdefs id='defs4'%3E %3ClinearGradient inkscape:collect='always' id='linearGradient4332'%3E %3Cstop style='stop-color:%23000000;stop-opacity:1;' offset='0' id='stop4334' /%3E %3Cstop style='stop-color:%23000000;stop-opacity:0;' offset='1' id='stop4336' /%3E %3C/linearGradient%3E %3ClinearGradient inkscape:collect='always' xlink:href='%23linearGradient4332' id='linearGradient4338' x1='4.7307509e-009' y1='975.41113' x2='99.996306' y2='975.41113' gradientUnits='userSpaceOnUse' /%3E %3C/defs%3E %3Csodipodi:namedview id='base' pagecolor='%23ffffff' bordercolor='%23666666' borderopacity='1.0' inkscape:pageopacity='0.0' inkscape:pageshadow='2' inkscape:zoom='11.2' inkscape:cx='64.435752' inkscape:cy='63.279261' inkscape:document-units='px' inkscape:current-layer='layer1' showgrid='false' units='px' inkscape:window-width='2560' inkscape:window-height='1377' inkscape:window-x='-8' inkscape:window-y='-8' inkscape:window-maximized='1' /%3E %3Cmetadata id='metadata7'%3E %3Crdf:RDF%3E %3Ccc:Work rdf:about=''%3E %3Cdc:format%3Eimage/svg+xml%3C/dc:format%3E %3Cdc:type rdf:resource='http://purl.org/dc/dcmitype/StillImage' /%3E %3Cdc:title%3E%3C/dc:title%3E %3C/cc:Work%3E %3C/rdf:RDF%3E %3C/metadata%3E %3Cg inkscape:label='Layer 1' inkscape:groupmode='layer' id='layer1' transform='translate(0,-952.36216)'%3E %3Cpath style='fill:%23ff00ff;fill-opacity:1;fill-rule:evenodd;stroke:%23000000;stroke-width:0.99342591px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' d='m 90.012486,997.46595 9.373568,-44.50913 -98.75727273,0 10.44836473,44.50913 c 0,0 24.758938,-20.00408 39.46767,-20.00408 14.708733,0 39.46767,20.00408 39.46767,20.00408 z' id='teamColor' inkscape:connector-curvature='0' sodipodi:nodetypes='ccccsc' /%3E %3Cpath style='fill:%23ffffff;fill-opacity:0.59610027;fill-rule:evenodd;stroke:url(%23linearGradient4338);stroke-width:0.99342591px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' d='m 90.010522,997.46595 9.373568,-44.50913 -98.75727299,0 10.44836499,44.50913 c 0,0 24.758938,-20.00408 39.46767,-20.00408 14.708733,0 39.46767,20.00408 39.46767,20.00408 z' id='teamColor-8' inkscape:connector-curvature='0' sodipodi:nodetypes='ccccsc' /%3E %3C/g%3E %3C/svg%3E"
+
+/***/ },
+/* 17 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -2314,6 +2435,12 @@
 	var _ShipModule3 = _interopRequireDefault(_ShipModule2);
 	
 	var _Constants = __webpack_require__(14);
+	
+	var _ImageLoader = __webpack_require__(15);
+	
+	var _core = __webpack_require__(18);
+	
+	var _core2 = _interopRequireDefault(_core);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -2339,7 +2466,10 @@
 	  function Core(ship, x, y) {
 	    _classCallCheck(this, Core);
 	
-	    return _possibleConstructorReturn(this, Object.getPrototypeOf(Core).call(this, ship, x, y, MASS, ENGINE_POWER, TURN_POWER, COST, HITPOINTS, POWER_GENERATION));
+	    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Core).call(this, ship, x, y, MASS, ENGINE_POWER, TURN_POWER, COST, HITPOINTS, POWER_GENERATION));
+	
+	    _this.img = (0, _ImageLoader.loadImage)(_core2.default, ship.color);
+	    return _this;
 	  }
 	
 	  _createClass(Core, [{
@@ -2347,15 +2477,8 @@
 	    value: function draw(screen) {
 	      screen.save();
 	      screen.translate(this.x, this.y);
-	      screen.fillStyle = "#666666";
-	      screen.fillRect(0, 0, _Constants.BLOCK_SIZE, _Constants.BLOCK_SIZE);
 	
-	      screen.fillStyle = "#ff3300";
-	      screen.beginPath();
-	      screen.arc(_Constants.BLOCK_SIZE / 2, _Constants.BLOCK_SIZE / 2, _Constants.BLOCK_SIZE / 3, 0, 2 * Math.PI);
-	      screen.closePath();
-	      screen.fill();
-	
+	      screen.drawImage(this.img, 0, 0, this.width, this.height);
 	      screen.restore();
 	    }
 	  }, {
@@ -2372,7 +2495,13 @@
 	exports.default = Core;
 
 /***/ },
-/* 16 */
+/* 18 */
+/***/ function(module, exports) {
+
+	module.exports = "data:image/svg+xml;charset=utf8,%3C?xml version='1.0' encoding='UTF-8' standalone='no'?%3E %3C!-- Created with Inkscape (http://www.inkscape.org/) --%3E %3Csvg xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:cc='http://creativecommons.org/ns%23' xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns%23' xmlns:svg='http://www.w3.org/2000/svg' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' xmlns:sodipodi='http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd' xmlns:inkscape='http://www.inkscape.org/namespaces/inkscape' width='100' height='100' viewBox='0 0 100 100' id='svg2' version='1.1' inkscape:version='0.91 r13725' sodipodi:docname='core.svg'%3E %3Cdefs id='defs4'%3E %3ClinearGradient inkscape:collect='always' id='linearGradient4356'%3E %3Cstop style='stop-color:%23ffffff;stop-opacity:1;' offset='0' id='stop4358' /%3E %3Cstop style='stop-color:%23ffffff;stop-opacity:0;' offset='1' id='stop4360' /%3E %3C/linearGradient%3E %3CradialGradient inkscape:collect='always' xlink:href='%23linearGradient4356' id='radialGradient4364' cx='43.400658' cy='991.88159' fx='43.400658' fy='991.88159' r='34.999996' gradientTransform='matrix(1.2038183,-0.02529438,0.02594309,1.2346923,-34.496847,-231.38725)' gradientUnits='userSpaceOnUse' /%3E %3C/defs%3E %3Csodipodi:namedview id='base' pagecolor='%23ffffff' bordercolor='%23666666' borderopacity='1.0' inkscape:pageopacity='0.0' inkscape:pageshadow='2' inkscape:zoom='11.2' inkscape:cx='64.435752' inkscape:cy='50.817855' inkscape:document-units='px' inkscape:current-layer='layer1' showgrid='false' units='px' inkscape:window-width='2560' inkscape:window-height='1377' inkscape:window-x='-8' inkscape:window-y='-8' inkscape:window-maximized='1' /%3E %3Cmetadata id='metadata7'%3E %3Crdf:RDF%3E %3Ccc:Work rdf:about=''%3E %3Cdc:format%3Eimage/svg+xml%3C/dc:format%3E %3Cdc:type rdf:resource='http://purl.org/dc/dcmitype/StillImage' /%3E %3Cdc:title%3E%3C/dc:title%3E %3C/cc:Work%3E %3C/rdf:RDF%3E %3C/metadata%3E %3Cg inkscape:label='Layer 1' inkscape:groupmode='layer' id='layer1' transform='translate(0,-952.36216)'%3E %3Crect style='opacity:1;fill:%23ff00ff;fill-opacity:1;stroke:%23000000;stroke-width:1.00300002;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1' id='teamColor' width='99.285713' height='99.910713' x='0.53571427' y='952.54071' /%3E %3Crect style='opacity:1;fill:%23000000;fill-opacity:0.46796659;stroke:%23000000;stroke-width:1.00300002;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1' id='rect4352' width='90' height='90' x='5.5015001' y='956.86066' ry='14.464286' /%3E %3Cellipse style='opacity:1;fill:url(%23radialGradient4364);fill-opacity:1;stroke:%23000000;stroke-width:1.13432479;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1' id='path4354' cx='50' cy='1002.3621' rx='34.432835' ry='34.432838' /%3E %3C/g%3E %3C/svg%3E"
+
+/***/ },
+/* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -2387,7 +2516,11 @@
 	
 	var _ShipModule3 = _interopRequireDefault(_ShipModule2);
 	
-	var _Constants = __webpack_require__(14);
+	var _ImageLoader = __webpack_require__(15);
+	
+	var _box = __webpack_require__(20);
+	
+	var _box2 = _interopRequireDefault(_box);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -2410,7 +2543,10 @@
 	  function Armor(ship, x, y) {
 	    _classCallCheck(this, Armor);
 	
-	    return _possibleConstructorReturn(this, Object.getPrototypeOf(Armor).call(this, ship, x, y, MASS, ENGINE_POWER, TURN_POWER, COST, HITPOINTS, POWER_GENERATION));
+	    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Armor).call(this, ship, x, y, MASS, ENGINE_POWER, TURN_POWER, COST, HITPOINTS, POWER_GENERATION));
+	
+	    _this.img = (0, _ImageLoader.loadImage)(_box2.default, ship.color);
+	    return _this;
 	  }
 	
 	  _createClass(Armor, [{
@@ -2418,8 +2554,8 @@
 	    value: function draw(screen) {
 	      screen.save();
 	      screen.translate(this.x, this.y);
-	      screen.fillStyle = "#999999";
-	      screen.fillRect(0, 0, _Constants.BLOCK_SIZE, _Constants.BLOCK_SIZE);
+	      screen.fillStyle = this.ship.color;
+	      screen.drawImage(this.img, 0, 0, this.width, this.height);
 	      screen.restore();
 	    }
 	  }]);
@@ -2430,7 +2566,13 @@
 	exports.default = Armor;
 
 /***/ },
-/* 17 */
+/* 20 */
+/***/ function(module, exports) {
+
+	module.exports = "data:image/svg+xml;charset=utf8,%3C?xml version='1.0' encoding='UTF-8' standalone='no'?%3E %3C!-- Created with Inkscape (http://www.inkscape.org/) --%3E %3Csvg xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:cc='http://creativecommons.org/ns%23' xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns%23' xmlns:svg='http://www.w3.org/2000/svg' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' xmlns:sodipodi='http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd' xmlns:inkscape='http://www.inkscape.org/namespaces/inkscape' width='100' height='100' viewBox='0 0 100 100' id='svg2' version='1.1' inkscape:version='0.91 r13725' sodipodi:docname='box.svg'%3E %3Cdefs id='defs4'%3E %3ClinearGradient inkscape:collect='always' id='linearGradient4173'%3E %3Cstop style='stop-color:%23ffffff;stop-opacity:1;' offset='0' id='stop4175' /%3E %3Cstop style='stop-color:%23ffffff;stop-opacity:0;' offset='1' id='stop4177' /%3E %3C/linearGradient%3E %3CradialGradient inkscape:collect='always' xlink:href='%23linearGradient4173' id='radialGradient4187' cx='97.612335' cy='1013.8953' fx='97.612335' fy='1013.8953' r='50.000019' gradientUnits='userSpaceOnUse' gradientTransform='matrix(0.00552191,1.2464515,-1.6732348,0.0074126,1697.2854,824.7847)' spreadMethod='reflect' /%3E %3C/defs%3E %3Csodipodi:namedview id='base' pagecolor='%23ffffff' bordercolor='%23666666' borderopacity='1.0' inkscape:pageopacity='0.0' inkscape:pageshadow='2' inkscape:zoom='11.2' inkscape:cx='34.816822' inkscape:cy='47.586894' inkscape:document-units='px' inkscape:current-layer='layer1' showgrid='false' units='px' inkscape:window-width='2560' inkscape:window-height='1377' inkscape:window-x='-8' inkscape:window-y='-8' inkscape:window-maximized='1' /%3E %3Cmetadata id='metadata7'%3E %3Crdf:RDF%3E %3Ccc:Work rdf:about=''%3E %3Cdc:format%3Eimage/svg+xml%3C/dc:format%3E %3Cdc:type rdf:resource='http://purl.org/dc/dcmitype/StillImage' /%3E %3Cdc:title%3E%3C/dc:title%3E %3C/cc:Work%3E %3C/rdf:RDF%3E %3C/metadata%3E %3Cg inkscape:label='Layer 1' inkscape:groupmode='layer' id='layer1' transform='translate(0,-952.36216)'%3E %3Crect style='fill:%23ff00ff;fill-opacity:1;fill-rule:evenodd;stroke:%23000000;stroke-width:1.0029577px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' id='teamColor' width='98.99704' height='98.99704' x='0.50147885' y='952.86365' /%3E %3Crect style='fill:url(%23radialGradient4187);fill-rule:evenodd;stroke:%23000000;stroke-width:1.003;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1;opacity:0.533;stroke-miterlimit:4;stroke-dasharray:none' id='rect3344-0' width='98.99704' height='98.99704' x='0.50147885' y='952.86365' /%3E %3C/g%3E %3C/svg%3E"
+
+/***/ },
+/* 21 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -2446,6 +2588,16 @@
 	var _ShipModule3 = _interopRequireDefault(_ShipModule2);
 	
 	var _Constants = __webpack_require__(14);
+	
+	var _ImageLoader = __webpack_require__(15);
+	
+	var _wing_right = __webpack_require__(22);
+	
+	var _wing_right2 = _interopRequireDefault(_wing_right);
+	
+	var _wing_left = __webpack_require__(23);
+	
+	var _wing_left2 = _interopRequireDefault(_wing_left);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -2462,17 +2614,19 @@
 	var HITPOINTS = 10;
 	var POWER_GENERATION = 0;
 	
-	var _isOnLeftSide;
-	
 	var Wing = function (_ShipModule) {
 	  _inherits(Wing, _ShipModule);
 	
-	  function Wing(ship, isOnLeftSide, x, y) {
+	  function Wing(ship, x, y) {
 	    _classCallCheck(this, Wing);
 	
 	    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Wing).call(this, ship, x, y, MASS, ENGINE_POWER, TURN_POWER, COST, HITPOINTS, POWER_GENERATION, _Constants.BLOCK_SIZE, _Constants.BLOCK_SIZE));
 	
-	    _isOnLeftSide = isOnLeftSide;
+	    if (x <= _this.ship.pivotX) {
+	      _this.img = (0, _ImageLoader.loadImage)(_wing_left2.default, ship.color);
+	    } else {
+	      _this.img = (0, _ImageLoader.loadImage)(_wing_right2.default, ship.color);
+	    }
 	    return _this;
 	  }
 	
@@ -2482,8 +2636,7 @@
 	      screen.save();
 	      screen.translate(this.x, this.y);
 	
-	      screen.fillStyle = "#0066ff";
-	      screen.fillRect(0, 0, _Constants.BLOCK_SIZE, _Constants.BLOCK_SIZE);
+	      screen.drawImage(this.img, 0, 0, this.width, this.height);
 	
 	      screen.restore();
 	    }
@@ -2495,7 +2648,19 @@
 	exports.default = Wing;
 
 /***/ },
-/* 18 */
+/* 22 */
+/***/ function(module, exports) {
+
+	module.exports = "data:image/svg+xml;charset=utf8,%3C?xml version='1.0' encoding='UTF-8' standalone='no'?%3E %3C!-- Created with Inkscape (http://www.inkscape.org/) --%3E %3Csvg xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:cc='http://creativecommons.org/ns%23' xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns%23' xmlns:svg='http://www.w3.org/2000/svg' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' xmlns:sodipodi='http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd' xmlns:inkscape='http://www.inkscape.org/namespaces/inkscape' width='100' height='100' viewBox='0 0 100 100' id='svg2' version='1.1' inkscape:version='0.91 r13725' sodipodi:docname='wing.svg'%3E %3Cdefs id='defs4'%3E %3ClinearGradient inkscape:collect='always' id='linearGradient4246'%3E %3Cstop style='stop-color:%23ffffff;stop-opacity:1;' offset='0' id='stop4248' /%3E %3Cstop style='stop-color:%23ffffff;stop-opacity:0;' offset='1' id='stop4250' /%3E %3C/linearGradient%3E %3ClinearGradient inkscape:collect='always' id='linearGradient4214'%3E %3Cstop style='stop-color:%23ffffff;stop-opacity:1;' offset='0' id='stop4216' /%3E %3Cstop style='stop-color:%23ffffff;stop-opacity:0' offset='1' id='stop4218' /%3E %3C/linearGradient%3E %3ClinearGradient inkscape:collect='always' xlink:href='%23linearGradient4214' id='linearGradient4220' x1='22.821428' y1='999.80859' x2='16.214291' y2='956.68353' gradientUnits='userSpaceOnUse' /%3E %3ClinearGradient gradientTransform='translate(-0.08928596,22.589323)' inkscape:collect='always' xlink:href='%23linearGradient4246' id='linearGradient4252-1' x1='31.517857' y1='1027.0942' x2='28.303576' y2='979.5943' gradientUnits='userSpaceOnUse' /%3E %3C/defs%3E %3Csodipodi:namedview id='base' pagecolor='%23ffffff' bordercolor='%23666666' borderopacity='1.0' inkscape:pageopacity='0.0' inkscape:pageshadow='2' inkscape:zoom='11.2' inkscape:cx='34.816822' inkscape:cy='47.586894' inkscape:document-units='px' inkscape:current-layer='layer1' showgrid='false' units='px' inkscape:window-width='2560' inkscape:window-height='1377' inkscape:window-x='-8' inkscape:window-y='-8' inkscape:window-maximized='1' /%3E %3Cmetadata id='metadata7'%3E %3Crdf:RDF%3E %3Ccc:Work rdf:about=''%3E %3Cdc:format%3Eimage/svg+xml%3C/dc:format%3E %3Cdc:type rdf:resource='http://purl.org/dc/dcmitype/StillImage' /%3E %3Cdc:title%3E%3C/dc:title%3E %3C/cc:Work%3E %3C/rdf:RDF%3E %3C/metadata%3E %3Cg inkscape:label='Layer 1' inkscape:groupmode='layer' id='layer1' transform='translate(0,-952.36216)'%3E %3Cpath style='fill:%23ff00ff;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' d='M 0.67857143,953.11212 0.5,1051.8622 l 100.08929,0 -64.196433,-89.46437 z' id='teamColor' inkscape:connector-curvature='0' sodipodi:nodetypes='ccccc' /%3E %3Cpath style='fill:url(%23linearGradient4220);fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' d='M 0.76785714,952.3978 0.67857143,1004.0051 62.107147,998.46934 36.035714,962.93351 Z' id='teamColor-6' inkscape:connector-curvature='0' sodipodi:nodetypes='ccccc' /%3E %3Cpath style='fill:url(%23linearGradient4252-1);fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' d='M 0.98214047,1000.6657 0.89285533,1051.7373 100,1051.4694 60.98214,997.45143 Z' id='teamColor-6-2-9' inkscape:connector-curvature='0' sodipodi:nodetypes='ccccc' /%3E %3Cpath style='fill:none;fill-opacity:1;fill-rule:evenodd;stroke:%23000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' d='M 0.76785714,953.02275 0.5,1051.8622 l 100.08929,0 -64.196433,-89.46445 z' id='teamColor-1' inkscape:connector-curvature='0' sodipodi:nodetypes='ccccc' /%3E %3C/g%3E %3C/svg%3E"
+
+/***/ },
+/* 23 */
+/***/ function(module, exports) {
+
+	module.exports = "data:image/svg+xml;charset=utf8,%3C?xml version='1.0' encoding='UTF-8' standalone='no'?%3E %3C!-- Created with Inkscape (http://www.inkscape.org/) --%3E %3Csvg xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:cc='http://creativecommons.org/ns%23' xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns%23' xmlns:svg='http://www.w3.org/2000/svg' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' xmlns:sodipodi='http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd' xmlns:inkscape='http://www.inkscape.org/namespaces/inkscape' width='100' height='100' viewBox='0 0 100 100' id='svg2' version='1.1' inkscape:version='0.91 r13725' sodipodi:docname='wing_left.svg'%3E %3Cdefs id='defs4'%3E %3ClinearGradient inkscape:collect='always' id='linearGradient4246'%3E %3Cstop style='stop-color:%23ffffff;stop-opacity:1;' offset='0' id='stop4248' /%3E %3Cstop style='stop-color:%23ffffff;stop-opacity:0;' offset='1' id='stop4250' /%3E %3C/linearGradient%3E %3ClinearGradient inkscape:collect='always' id='linearGradient4214'%3E %3Cstop style='stop-color:%23ffffff;stop-opacity:1;' offset='0' id='stop4216' /%3E %3Cstop style='stop-color:%23ffffff;stop-opacity:0' offset='1' id='stop4218' /%3E %3C/linearGradient%3E %3ClinearGradient inkscape:collect='always' xlink:href='%23linearGradient4214' id='linearGradient4220' x1='22.821428' y1='999.80859' x2='16.214291' y2='956.68353' gradientUnits='userSpaceOnUse' /%3E %3ClinearGradient gradientTransform='translate(-0.08928596,22.589323)' inkscape:collect='always' xlink:href='%23linearGradient4246' id='linearGradient4252-1' x1='31.517857' y1='1027.0942' x2='28.303576' y2='979.5943' gradientUnits='userSpaceOnUse' /%3E %3C/defs%3E %3Csodipodi:namedview id='base' pagecolor='%23ffffff' bordercolor='%23666666' borderopacity='1.0' inkscape:pageopacity='0.0' inkscape:pageshadow='2' inkscape:zoom='11.2' inkscape:cx='34.816822' inkscape:cy='47.586894' inkscape:document-units='px' inkscape:current-layer='layer1' showgrid='false' units='px' inkscape:window-width='2560' inkscape:window-height='1377' inkscape:window-x='-8' inkscape:window-y='-8' inkscape:window-maximized='1' /%3E %3Cmetadata id='metadata7'%3E %3Crdf:RDF%3E %3Ccc:Work rdf:about=''%3E %3Cdc:format%3Eimage/svg+xml%3C/dc:format%3E %3Cdc:type rdf:resource='http://purl.org/dc/dcmitype/StillImage' /%3E %3Cdc:title%3E%3C/dc:title%3E %3C/cc:Work%3E %3C/rdf:RDF%3E %3C/metadata%3E %3Cg inkscape:label='Layer 1' inkscape:groupmode='layer' id='layer1' transform='translate(0,-952.36216)'%3E %3Cg id='g4383' transform='matrix(-1,0,0,1,101.56212,0)'%3E %3Cpath sodipodi:nodetypes='ccccc' inkscape:connector-curvature='0' id='teamColor' d='M 0.67857143,953.11212 0.5,1051.8622 l 100.08929,0 -64.196433,-89.46437 z' style='fill:%23ff00ff;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /%3E %3Cpath sodipodi:nodetypes='ccccc' inkscape:connector-curvature='0' id='teamColor-6' d='M 0.76785714,952.3978 0.67857143,1004.0051 62.107147,998.46934 36.035714,962.93351 Z' style='fill:url(%23linearGradient4220);fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /%3E %3Cpath sodipodi:nodetypes='ccccc' inkscape:connector-curvature='0' id='teamColor-6-2-9' d='M 0.98214047,1000.6657 0.89285533,1051.7373 100,1051.4694 60.98214,997.45143 Z' style='fill:url(%23linearGradient4252-1);fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /%3E %3Cpath sodipodi:nodetypes='ccccc' inkscape:connector-curvature='0' id='teamColor-1' d='M 0.76785714,953.02275 0.5,1051.8622 l 100.08929,0 -64.196433,-89.46445 z' style='fill:none;fill-opacity:1;fill-rule:evenodd;stroke:%23000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /%3E %3C/g%3E %3C/g%3E %3C/svg%3E"
+
+/***/ },
+/* 24 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -2512,9 +2677,19 @@
 	
 	var _ShipModule3 = _interopRequireDefault(_ShipModule2);
 	
-	var _Bullet = __webpack_require__(19);
+	var _Bullet = __webpack_require__(25);
 	
 	var _Bullet2 = _interopRequireDefault(_Bullet);
+	
+	var _ImageLoader = __webpack_require__(15);
+	
+	var _gun_base = __webpack_require__(26);
+	
+	var _gun_base2 = _interopRequireDefault(_gun_base);
+	
+	var _gun_turret = __webpack_require__(27);
+	
+	var _gun_turret2 = _interopRequireDefault(_gun_turret);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -2543,6 +2718,9 @@
 	
 	    _this.timeToReload = 25;
 	    _this.reloadTimeLeft = 0;
+	
+	    _this.img_base = (0, _ImageLoader.loadImage)(_gun_base2.default, ship.color);
+	    _this.img_turret = (0, _ImageLoader.loadImage)(_gun_turret2.default, ship.color);
 	    return _this;
 	  }
 	
@@ -2552,24 +2730,10 @@
 	      screen.save();
 	      screen.translate(this.x, this.y);
 	
-	      screen.fillStyle = "#333333";
-	      screen.beginPath();
+	      screen.drawImage(this.img_base, 0, 0, this.width, this.height);
+	      screen.drawImage(this.img_turret, 0, 0, this.width, this.height);
 	
-	      screen.lineTo(_Constants.BLOCK_SIZE, _Constants.BLOCK_SIZE);
-	      screen.lineTo(0, _Constants.BLOCK_SIZE);
-	      screen.lineTo(0, _Constants.BLOCK_SIZE * 0.3);
-	
-	      screen.lineTo(_Constants.BLOCK_SIZE * 0.3, _Constants.BLOCK_SIZE * 0.3);
-	      screen.lineTo(_Constants.BLOCK_SIZE * 0.3, 0);
-	      screen.lineTo(_Constants.BLOCK_SIZE * 0.7, 0);
-	      screen.lineTo(_Constants.BLOCK_SIZE * 0.7, _Constants.BLOCK_SIZE * 0.3);
-	
-	      screen.lineTo(_Constants.BLOCK_SIZE, _Constants.BLOCK_SIZE * 0.3);
-	
-	      screen.closePath();
-	      screen.fill();
-	
-	      screen.fillStyle = "#ffff00";
+	      screen.fillStyle = this.ship.color;
 	      var maxWidth = this.width - 1;
 	      screen.fillRect(1, this.height - 2, maxWidth * (1 - this.reloadTimeLeft / this.timeToReload), 1);
 	
@@ -2592,7 +2756,7 @@
 	exports.default = Gun;
 
 /***/ },
-/* 19 */
+/* 25 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -2657,7 +2821,7 @@
 	  }, {
 	    key: "die",
 	    value: function die() {
-	      this.gun.game.removeShot(this);
+	      this.gun.game.removeFromLayer(this);
 	    }
 	  }, {
 	    key: "draw",
@@ -2676,7 +2840,7 @@
 	      screen.lineTo(1, 0);
 	
 	      screen.closePath();
-	      screen.fillStyle = "red";
+	      screen.fillStyle = this.gun.ship.color;
 	      screen.fill();
 	
 	      screen.restore();
@@ -2736,7 +2900,286 @@
 	exports.default = Bullet;
 
 /***/ },
-/* 20 */
+/* 26 */
+/***/ function(module, exports) {
+
+	module.exports = "data:image/svg+xml;charset=utf8,%3C?xml version='1.0' encoding='UTF-8' standalone='no'?%3E %3C!-- Created with Inkscape (http://www.inkscape.org/) --%3E %3Csvg xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:cc='http://creativecommons.org/ns%23' xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns%23' xmlns:svg='http://www.w3.org/2000/svg' xmlns='http://www.w3.org/2000/svg' xmlns:sodipodi='http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd' xmlns:inkscape='http://www.inkscape.org/namespaces/inkscape' width='100' height='100' viewBox='0 0 100 100' id='svg2' version='1.1' inkscape:version='0.91 r13725' sodipodi:docname='gun_base.svg'%3E %3Cdefs id='defs4' /%3E %3Csodipodi:namedview id='base' pagecolor='%23ffffff' bordercolor='%23666666' borderopacity='1.0' inkscape:pageopacity='0.0' inkscape:pageshadow='2' inkscape:zoom='11.2' inkscape:cx='64.435752' inkscape:cy='50.817855' inkscape:document-units='px' inkscape:current-layer='layer1' showgrid='false' units='px' inkscape:window-width='2560' inkscape:window-height='1377' inkscape:window-x='-8' inkscape:window-y='-8' inkscape:window-maximized='1' /%3E %3Cmetadata id='metadata7'%3E %3Crdf:RDF%3E %3Ccc:Work rdf:about=''%3E %3Cdc:format%3Eimage/svg+xml%3C/dc:format%3E %3Cdc:type rdf:resource='http://purl.org/dc/dcmitype/StillImage' /%3E %3Cdc:title /%3E %3C/cc:Work%3E %3C/rdf:RDF%3E %3C/metadata%3E %3Cg inkscape:label='Layer 1' inkscape:groupmode='layer' id='layer1' transform='translate(0,-952.36216)'%3E %3Cpath style='fill:%23ff00ff;fill-opacity:0.4679666;fill-rule:evenodd;stroke:%23000000;stroke-width:0.95370758px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' d='m 4.9782926,965.68075 -4.64505302,86.20455 99.42199942,0 -4.73438,-86.20455 c -45.199939,-4.78915 -45.199939,-4.70797 -90.0425664,0 z' id='teamColor' inkscape:connector-curvature='0' sodipodi:nodetypes='ccccc' /%3E %3Cpath style='fill:%23000000;fill-opacity:0.59888575;fill-rule:evenodd;stroke:%23000000;stroke-width:0.95370758px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' d='m 4.9782926,965.68075 -4.64505302,86.20455 99.42199942,0 -4.73438,-86.20455 c -45.199939,-4.78915 -45.199939,-4.70797 -90.0425664,0 z' id='teamColor-3' inkscape:connector-curvature='0' sodipodi:nodetypes='ccccc' /%3E %3C/g%3E %3C/svg%3E"
+
+/***/ },
+/* 27 */
+/***/ function(module, exports) {
+
+	module.exports = "data:image/svg+xml;charset=utf8,%3C?xml version='1.0' encoding='UTF-8' standalone='no'?%3E %3C!-- Created with Inkscape (http://www.inkscape.org/) --%3E %3Csvg xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:cc='http://creativecommons.org/ns%23' xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns%23' xmlns:svg='http://www.w3.org/2000/svg' xmlns='http://www.w3.org/2000/svg' xmlns:sodipodi='http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd' xmlns:inkscape='http://www.inkscape.org/namespaces/inkscape' width='100' height='100' viewBox='0 0 100 100' id='svg2' version='1.1' inkscape:version='0.91 r13725' sodipodi:docname='gun_turret.svg'%3E %3Cdefs id='defs4' /%3E %3Csodipodi:namedview id='base' pagecolor='%23ffffff' bordercolor='%23666666' borderopacity='1.0' inkscape:pageopacity='0.0' inkscape:pageshadow='2' inkscape:zoom='11.2' inkscape:cx='64.435752' inkscape:cy='50.817855' inkscape:document-units='px' inkscape:current-layer='layer1' showgrid='false' units='px' inkscape:window-width='2560' inkscape:window-height='1377' inkscape:window-x='-8' inkscape:window-y='-8' inkscape:window-maximized='1' /%3E %3Cmetadata id='metadata7'%3E %3Crdf:RDF%3E %3Ccc:Work rdf:about=''%3E %3Cdc:format%3Eimage/svg+xml%3C/dc:format%3E %3Cdc:type rdf:resource='http://purl.org/dc/dcmitype/StillImage' /%3E %3Cdc:title%3E%3C/dc:title%3E %3C/cc:Work%3E %3C/rdf:RDF%3E %3C/metadata%3E %3Cg inkscape:label='Layer 1' inkscape:groupmode='layer' id='layer1' transform='translate(0,-952.36216)'%3E %3Cellipse style='opacity:1;fill:%23000000;fill-opacity:1;stroke:%23000000;stroke-width:1.45630145;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1' id='path4415' cx='49.86607' cy='1020.264' rx='20.621565' ry='25.532278' /%3E %3Crect ry='4.2857318' style='opacity:1;fill:%23000000;fill-opacity:1;stroke:%23000000;stroke-width:1.71063542;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1' id='rect4417' width='30.185223' height='54.024494' x='34.460957' y='959.0553' /%3E %3C/g%3E %3C/svg%3E"
+
+/***/ },
+/* 28 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _Constants = __webpack_require__(14);
+	
+	var _ShipModule2 = __webpack_require__(13);
+	
+	var _ShipModule3 = _interopRequireDefault(_ShipModule2);
+	
+	var _Beam = __webpack_require__(29);
+	
+	var _Beam2 = _interopRequireDefault(_Beam);
+	
+	var _ImageLoader = __webpack_require__(15);
+	
+	var _gun_base = __webpack_require__(30);
+	
+	var _gun_base2 = _interopRequireDefault(_gun_base);
+	
+	var _gun_turret = __webpack_require__(31);
+	
+	var _gun_turret2 = _interopRequireDefault(_gun_turret);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var MASS = 150;
+	var ENGINE_POWER = 0;
+	var TURN_POWER = 0;
+	var COST = 75;
+	var HITPOINTS = 10;
+	var POWER_GENERATION = 0;
+	
+	var Gun = function (_ShipModule) {
+	  _inherits(Gun, _ShipModule);
+	
+	  function Gun(ship, x, y) {
+	    _classCallCheck(this, Gun);
+	
+	    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Gun).call(this, ship, x, y, MASS, ENGINE_POWER, TURN_POWER, COST, HITPOINTS, POWER_GENERATION));
+	
+	    _this.img_base = (0, _ImageLoader.loadImage)(_gun_base2.default, ship.color);
+	    _this.img_turret = (0, _ImageLoader.loadImage)(_gun_turret2.default, ship.color);
+	    return _this;
+	  }
+	
+	  _createClass(Gun, [{
+	    key: "draw",
+	    value: function draw(screen) {
+	      screen.save();
+	      screen.translate(this.x, this.y);
+	
+	      screen.drawImage(this.img_base, 0, 0, this.width, this.height);
+	
+	      screen.fillStyle = this.ship.color;
+	      var maxWidth = this.width - 1;
+	      screen.fillRect(1, this.height - 2, maxWidth * (1 - this.reloadTimeLeft / this.timeToReload), 1);
+	
+	      screen.restore();
+	    }
+	  }, {
+	    key: "tick",
+	    value: function tick() {
+	      if (this.ship._firingPrimary && this._beam === undefined) {
+	        this._beam = new _Beam2.default(this);
+	        this.game.spawn(this._beam, "UNDER_SHIPS");
+	      } else if (!this.ship._firingPrimary && this._beam !== undefined) {
+	        this.game.removeFromLayer(this._beam, "UNDER_SHIPS");
+	        this._beam = undefined;
+	      }
+	    }
+	  }]);
+	
+	  return Gun;
+	}(_ShipModule3.default);
+	
+	exports.default = Gun;
+
+/***/ },
+/* 29 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _Sprite2 = __webpack_require__(7);
+	
+	var _Sprite3 = _interopRequireDefault(_Sprite2);
+	
+	var _sat = __webpack_require__(9);
+	
+	var _sat2 = _interopRequireDefault(_sat);
+	
+	var _Constants = __webpack_require__(14);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var V = _sat2.default.Vector;
+	var P = _sat2.default.Polygon;
+	var B = _sat2.default.Box;
+	
+	var _x, _y, gun;
+	
+	var Beam = function (_Sprite) {
+	  _inherits(Beam, _Sprite);
+	
+	  function Beam(gun) {
+	    _classCallCheck(this, Beam);
+	
+	    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Beam).call(this));
+	
+	    _this.gun = gun;
+	    _this._x = _this.gun._x;
+	    _this._y = _this.gun._y;
+	
+	    _this.damage = 0.2;
+	
+	    _this.dx = Math.cos(_this.angle) * _this.speed;
+	    _this.dy = Math.sin(_this.angle) * _this.speed;
+	    return _this;
+	  }
+	
+	  _createClass(Beam, [{
+	    key: "tick",
+	    value: function tick() {
+	      this._x += this.gun._x;
+	      this._y += this.gun._y;
+	    }
+	  }, {
+	    key: "die",
+	    value: function die() {
+	      this.gun.game.removeFromLayer(this);
+	    }
+	  }, {
+	    key: "draw",
+	    value: function draw(screen) {
+	      screen.save();
+	      screen.translate(this.gun.globalX, this.gun.globalY);
+	      screen.rotate(90 * _Constants.DEGREE);
+	      screen.rotate(this.angle);
+	      screen.translate(-this.pivotX, -this.pivotY);
+	
+	      screen.beginPath();
+	      screen.lineTo(0, 0);
+	      screen.lineTo(this.width / 2, this.height);
+	      screen.lineTo(this.width, 0);
+	
+	      screen.closePath();
+	      screen.fillStyle = this.gun.ship.color;
+	      screen.fill();
+	
+	      screen.restore();
+	
+	      // super.drawCollisionPoly(screen);
+	    }
+	  }, {
+	    key: "collide",
+	    value: function collide(collidedWith) {
+	      collidedWith.recieveDamage(this.damage);
+	    }
+	  }, {
+	    key: "angle",
+	    get: function get() {
+	      return this.gun.globalAngle + Math.PI;
+	    }
+	  }, {
+	    key: "collisionPoly",
+	    get: function get() {
+	
+	      var line = new B(new V(0, 0), 2, -this.height).toPolygon();
+	
+	      line.translate(-1, 0);
+	      line.rotate(this.globalAngle + Math.PI / 2);
+	      line.translate(this.globalX, this.globalY);
+	
+	      return line;
+	    }
+	  }, {
+	    key: "width",
+	    get: function get() {
+	      return 10;
+	    }
+	  }, {
+	    key: "height",
+	    get: function get() {
+	      return 120;
+	    }
+	  }, {
+	    key: "pivotX",
+	    get: function get() {
+	      return this.width / 2;
+	    }
+	  }, {
+	    key: "pivotY",
+	    get: function get() {
+	      return 0;
+	    }
+	  }, {
+	    key: "worldPos",
+	    get: function get() {
+	      var shipAngle = this.gun.ship.angle + Math.PI / 2;
+	      var shipCenterOffestX = this.x + _Constants.BLOCK_SIZE / 2 - this.ship.pivotX;
+	      var shipCenterOffestY = this.y + _Constants.BLOCK_SIZE / 2 - this.ship.pivotY;
+	
+	      var x = this.ship.x + Math.cos(shipAngle) * shipCenterOffestX - Math.sin(shipAngle) * shipCenterOffestY;
+	      var y = this.ship.y + Math.sin(shipAngle) * shipCenterOffestX + Math.cos(shipAngle) * shipCenterOffestY;
+	      return [x, y];
+	    }
+	  }, {
+	    key: "globalX",
+	    get: function get() {
+	      return this.gun.globalX;
+	    }
+	  }, {
+	    key: "globalY",
+	    get: function get() {
+	      return this.gun.globalY;
+	    }
+	  }, {
+	    key: "globalAngle",
+	    get: function get() {
+	      return this.gun.ship.globalAngle;
+	    }
+	  }]);
+	
+	  return Beam;
+	}(_Sprite3.default);
+	
+	exports.default = Beam;
+
+/***/ },
+/* 30 */
+/***/ function(module, exports) {
+
+	module.exports = "data:image/svg+xml;charset=utf8,%3C?xml version='1.0' encoding='UTF-8' standalone='no'?%3E %3C!-- Created with Inkscape (http://www.inkscape.org/) --%3E %3Csvg xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:cc='http://creativecommons.org/ns%23' xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns%23' xmlns:svg='http://www.w3.org/2000/svg' xmlns='http://www.w3.org/2000/svg' xmlns:sodipodi='http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd' xmlns:inkscape='http://www.inkscape.org/namespaces/inkscape' width='100' height='100' viewBox='0 0 100 100' id='svg2' version='1.1' inkscape:version='0.91 r13725' sodipodi:docname='gun_base.svg'%3E %3Cdefs id='defs4' /%3E %3Csodipodi:namedview id='base' pagecolor='%23ffffff' bordercolor='%23666666' borderopacity='1.0' inkscape:pageopacity='0.0' inkscape:pageshadow='2' inkscape:zoom='11.2' inkscape:cx='64.435752' inkscape:cy='50.817855' inkscape:document-units='px' inkscape:current-layer='layer1' showgrid='false' units='px' inkscape:window-width='2560' inkscape:window-height='1377' inkscape:window-x='-8' inkscape:window-y='-8' inkscape:window-maximized='1' /%3E %3Cmetadata id='metadata7'%3E %3Crdf:RDF%3E %3Ccc:Work rdf:about=''%3E %3Cdc:format%3Eimage/svg+xml%3C/dc:format%3E %3Cdc:type rdf:resource='http://purl.org/dc/dcmitype/StillImage' /%3E %3Cdc:title /%3E %3C/cc:Work%3E %3C/rdf:RDF%3E %3C/metadata%3E %3Cg inkscape:label='Layer 1' inkscape:groupmode='layer' id='layer1' transform='translate(0,-952.36216)'%3E %3Cpath style='fill:%23ff00ff;fill-opacity:0.4679666;fill-rule:evenodd;stroke:%23000000;stroke-width:0.95370758px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' d='m 4.9782926,965.68075 -4.64505302,86.20455 99.42199942,0 -4.73438,-86.20455 c -45.199939,-4.78915 -45.199939,-4.70797 -90.0425664,0 z' id='teamColor' inkscape:connector-curvature='0' sodipodi:nodetypes='ccccc' /%3E %3Cpath style='fill:%23000000;fill-opacity:0.59888575;fill-rule:evenodd;stroke:%23000000;stroke-width:0.95370758px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' d='m 4.9782926,965.68075 -4.64505302,86.20455 99.42199942,0 -4.73438,-86.20455 c -45.199939,-4.78915 -45.199939,-4.70797 -90.0425664,0 z' id='teamColor-3' inkscape:connector-curvature='0' sodipodi:nodetypes='ccccc' /%3E %3C/g%3E %3C/svg%3E"
+
+/***/ },
+/* 31 */
+/***/ function(module, exports) {
+
+	module.exports = "data:image/svg+xml;charset=utf8,%3C?xml version='1.0' encoding='UTF-8' standalone='no'?%3E %3C!-- Created with Inkscape (http://www.inkscape.org/) --%3E %3Csvg xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:cc='http://creativecommons.org/ns%23' xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns%23' xmlns:svg='http://www.w3.org/2000/svg' xmlns='http://www.w3.org/2000/svg' xmlns:sodipodi='http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd' xmlns:inkscape='http://www.inkscape.org/namespaces/inkscape' width='100' height='100' viewBox='0 0 100 100' id='svg2' version='1.1' inkscape:version='0.91 r13725' sodipodi:docname='gun_turret.svg'%3E %3Cdefs id='defs4' /%3E %3Csodipodi:namedview id='base' pagecolor='%23ffffff' bordercolor='%23666666' borderopacity='1.0' inkscape:pageopacity='0.0' inkscape:pageshadow='2' inkscape:zoom='11.2' inkscape:cx='64.435752' inkscape:cy='50.817855' inkscape:document-units='px' inkscape:current-layer='layer1' showgrid='false' units='px' inkscape:window-width='2560' inkscape:window-height='1377' inkscape:window-x='-8' inkscape:window-y='-8' inkscape:window-maximized='1' /%3E %3Cmetadata id='metadata7'%3E %3Crdf:RDF%3E %3Ccc:Work rdf:about=''%3E %3Cdc:format%3Eimage/svg+xml%3C/dc:format%3E %3Cdc:type rdf:resource='http://purl.org/dc/dcmitype/StillImage' /%3E %3Cdc:title%3E%3C/dc:title%3E %3C/cc:Work%3E %3C/rdf:RDF%3E %3C/metadata%3E %3Cg inkscape:label='Layer 1' inkscape:groupmode='layer' id='layer1' transform='translate(0,-952.36216)'%3E %3Cellipse style='opacity:1;fill:%23000000;fill-opacity:1;stroke:%23000000;stroke-width:1.45630145;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1' id='path4415' cx='49.86607' cy='1020.264' rx='20.621565' ry='25.532278' /%3E %3Crect ry='4.2857318' style='opacity:1;fill:%23000000;fill-opacity:1;stroke:%23000000;stroke-width:1.71063542;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1' id='rect4417' width='30.185223' height='54.024494' x='34.460957' y='959.0553' /%3E %3C/g%3E %3C/svg%3E"
+
+/***/ },
+/* 32 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -2800,7 +3243,7 @@
 	exports.default = DummyShip;
 
 /***/ },
-/* 21 */
+/* 33 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -2824,7 +3267,7 @@
 	};
 
 /***/ },
-/* 22 */
+/* 34 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -2835,7 +3278,7 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _PickableShip = __webpack_require__(23);
+	var _PickableShip = __webpack_require__(35);
 	
 	var _PickableShip2 = _interopRequireDefault(_PickableShip);
 	
@@ -2997,7 +3440,7 @@
 	exports.default = ShipPicker;
 
 /***/ },
-/* 23 */
+/* 35 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
