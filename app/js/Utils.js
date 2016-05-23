@@ -1,5 +1,6 @@
 import SAT from "sat";
 
+const Response = SAT.Response;
 const V = SAT.Vector;
 const B = SAT.Box;
 
@@ -25,11 +26,8 @@ export function boundingBox(sprite) {
 
 export function isSpritesColliding(s1, s2){
   if(s1 === s2) return false;
-
-  var bb1 = boundingBox(s1);
-  var bb2 = boundingBox(s2);
-
-  return SAT.testPolygonPolygon(bb1,bb2);
+  var isColliding = SAT.testPolygonPolygon(s1.collisionPoly,s2.collisionPoly);
+  return isColliding;
 }
 
 export function isPointInSprite(x,y,sprite){

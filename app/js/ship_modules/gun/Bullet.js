@@ -35,7 +35,7 @@ export default class Bullet extends Sprite {
   }
 
   die(){
-    this.gun.game.removeShot(this)
+    this.gun.game.removeFromLayer(this)
   }
 
   draw(screen){

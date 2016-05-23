@@ -3,12 +3,20 @@ import KeyControl from "./KeyControl";
 import ControllableShip from "./ControllableShip";
 import DummyShip from "./DummyShip";
 
+import SAT from "sat";
+
+const Response = SAT.Response;
+const V = SAT.Vector;
+const B = SAT.Box;
+
+
 import { isSpritesColliding } from "./Utils"
 
 import {KEY_MAP} from "./Keys";
 
 const LAYERS = {
   BACKGROUND:[],
+  UNDER_SHIPS:[],
   SHIPS:[],
   SHOTS:[],
   OVERLAY:[],
@@ -57,9 +65,6 @@ export default class Game {
       "  E "
     ];
 
-    // LAYERS.SHIPS.push(new DummyShip(this,Math.floor(Math.random()*2000),Math.floor(Math.random()*2000),0,AI_SCHEMATIC));
-    // LAYERS.SHIPS.push(new DummyShip(this,Math.floor(Math.random()*2000),Math.floor(Math.random()*2000),0,AI_SCHEMATIC));
-
     this.loadNextP1Ship();
     this.loadNextP2Ship();
   }
@@ -96,9 +101,9 @@ export default class Game {
     );
   }
 
-  removeShot(toRemove){
-    var i = LAYERS.SHOTS.indexOf(toRemove);
-    LAYERS.SHOTS.splice(i,1);
+  removeFromLayer(toRemove, layer="SHOTS"){
+    var i = LAYERS[layer].indexOf(toRemove);
+    LAYERS[layer].splice(i,1);
   }
 
   removeShip(toRemove){
@@ -111,14 +116,26 @@ export default class Game {
   }
   handleCollisions(){
     LAYERS.SHIPS.forEach((ship)=>{
-      LAYERS.SHOTS.forEach((shot)=>{
+      LAYERS.SHOTS.concat(LAYERS.UNDER_SHIPS).forEach((shot)=>{
         if(isSpritesColliding(ship,shot) && shot.gun.ship != ship){
+
+          var closestCollison = 1000000;
+          var collidingModule = undefined;
+
           ship.modules.forEach((module)=>{
-            if(isSpritesColliding(module,shot)){
-              ship.collide(shot);
-              shot.collide(module);
+            var lengthToCollision = new V(module.pivotX,module.pivotY).sub(new V(shot.pivotX,shot.pivotY)).len2();
+
+            if(isSpritesColliding(module,shot) && lengthToCollision < closestCollison){
+              collidingModule = module;
             }
+
           });
+
+          if(collidingModule !== undefined){
+            shot.collide(collidingModule);
+            collidingModule.collide(shot);
+          }
+
         }
       })
     })
@@ -128,6 +145,7 @@ export default class Game {
     this.globalTime ++;
 
     this.tickLayer(LAYERS.BACKGROUND);
+    this.tickLayer(LAYERS.UNDER_SHIPS);
     this.tickLayer(LAYERS.SHIPS);
     this.tickLayer(LAYERS.SHOTS);
     this.tickLayer(LAYERS.OVERLAY);
@@ -138,6 +156,7 @@ export default class Game {
 
   draw(){
     this.renderer.render([
+      LAYERS.UNDER_SHIPS,
       LAYERS.SHIPS,
       LAYERS.SHOTS
     ]);
@@ -147,9 +166,19 @@ export default class Game {
 
     setInterval(function(){
       this.tick();
-      this.draw();
     }.bind(this),1000/60); //TODO: replace with window.requestAnimationFrame(callback) ?
 
+
+    this.startAnimLoop();
+
+  }
+
+  startAnimLoop(){
+    var that = this;
+    window.requestAnimationFrame(function(){
+      that.draw();
+      that.startAnimLoop();
+    })
   }
 
   spawn(sprite, layer = "SHOTS"){

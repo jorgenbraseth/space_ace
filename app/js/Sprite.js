@@ -12,9 +12,7 @@ export default class Sprite {
   get globalAngle(){};
   get drawParent(){};
 
-  get collide(){
-    throw "Unimplemented collide in "+this.constructor.name;
-  }
+  collide(){}
 
   get pivotX(){
     return this.width/2;
@@ -24,14 +22,25 @@ export default class Sprite {
     return this.height/2;
   }
 
-  drawBoundingBox(screen){
-    const bbox = boundingBox(this);
+  get collisionPoly() {
+    return boundingBox(this);
+  }
+
+  drawCollisionPoly(screen){
+    const poly = this.collisionPoly;
     screen.beginPath();
-    bbox.points.forEach((p)=>{
-      screen.lineTo(p.x,p.y)
-    });
+
+    if(poly.points[0]) {
+      poly.points.forEach((p)=> {
+        screen.lineTo(p.x, p.y)
+      });
+    }else{
+      console.log(poly);
+      screen.lineTo(0,0);
+      screen.lineTo(poly.points.x, poly.points.y);
+    }
     screen.closePath();
-    screen.strokeStyle = "orange";
+    screen.strokeStyle = "blue";
     screen.stroke();
 
   }

@@ -6,8 +6,8 @@ var canvas = document.getElementById('game');
 
 const SCHEMS = [
   [
-    "G G",
-    "EXW"
+    "WGB",
+    " XE"
   ],
   [
     "  GGG  ",
@@ -32,7 +32,25 @@ const SCHEMS = [
     "EEWSSWWWSSWEE   ",
     "  EEESSSEEE     ",
     "     EEE        "
-  ]
+  ],
+  [
+    "WBBBW",
+    " EXE"
+  ],
+  [
+    "WBW",
+    "EXE"
+  ],  [
+    "     SSS        ",
+    "  SSSBBBSSS     ",
+    " SGGGBBBGGGS    ",
+    "SWWGGBBBGGWWS   ",
+    "SWWWWWXWWWWWS   ",
+    "SWW WWWWW WWS   ",
+    "EEWSSWWWSSWEE   ",
+    "  EEESSSEEE     ",
+    "     EEE        "
+  ],
 ];
 
 new ShipPicker(canvas,SCHEMS,"Select ship for Player 1").pickShips((schem)=>{

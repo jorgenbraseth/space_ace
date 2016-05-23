@@ -5,6 +5,7 @@ import Core from "./ship_modules/Core";
 import Armor from "./ship_modules/Armor";
 import Wing from "./ship_modules/Wing";
 import Gun from "./ship_modules/gun/Gun";
+import BeamWeapon from "./ship_modules/beam/BeamWeapon";
 
 import {DEGREE, BLOCK_SIZE} from "./Constants"
 
@@ -143,6 +144,8 @@ export default class Ship extends Sprite {
           partsRow.push(gun);
         }else if(block === "W"){
           partsRow.push(new Wing(this,x,y));
+        }else if(block === "B"){
+          partsRow.push(new BeamWeapon(this,x,y));
         }else if(block === "X"){
 
           partsRow.push(new Core(this,x,y));
@@ -232,7 +235,7 @@ export default class Ship extends Sprite {
     screen.restore();
 
     if(DRAW_BOUNDING_BOX){
-      this.drawBoundingBox(screen);
+      this.drawCollisionPoly(screen);
     }
   }
 
