@@ -134,14 +134,14 @@
 	  ACCELERATE: _Keys.KEY_MAP.W,
 	  TURN_CLOCKWISE: _Keys.KEY_MAP.D,
 	  TURN_COUNTERCLOCKWISE: _Keys.KEY_MAP.S,
-	  FIRE_PRIMARY: _Keys.KEY_MAP.SPACE
+	  FIRE_PRIMARY: _Keys.KEY_MAP.C
 	};
 	
 	var PLAYER2_CONTROLS = {
 	  ACCELERATE: _Keys.KEY_MAP.UP,
 	  TURN_CLOCKWISE: _Keys.KEY_MAP.RIGHT,
 	  TURN_COUNTERCLOCKWISE: _Keys.KEY_MAP.LEFT,
-	  FIRE_PRIMARY: _Keys.KEY_MAP.NUM_0
+	  FIRE_PRIMARY: _Keys.KEY_MAP.SHIFT
 	};
 	
 	var Game = function () {
@@ -369,6 +369,7 @@
 	    this.canvas.onkeydown = this.triggerKeyDownCallbacks.bind(this);
 	
 	    this.canvas.onkeyup = function (e) {
+	      e.preventDefault();
 	      var callbacks = this.keyUpCallbacks[e.keyCode];
 	      if (callbacks) {
 	        for (var cb = 0; cb < callbacks.length; cb++) {
@@ -381,6 +382,7 @@
 	  _createClass(KeyControl, [{
 	    key: "triggerKeyDownCallbacks",
 	    value: function triggerKeyDownCallbacks(e) {
+	      e.preventDefault();
 	      var keyCode = e.keyCode;
 	      // console.log(keyCode);
 	      var callbacks = this.keyCallbacks[keyCode];
@@ -3257,6 +3259,7 @@
 	  W: 87,
 	  S: 65,
 	  D: 68,
+	  C: 67,
 	  LEFT: 37,
 	  RIGHT: 39,
 	  UP: 38,
