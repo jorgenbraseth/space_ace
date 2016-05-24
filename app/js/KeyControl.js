@@ -8,6 +8,7 @@ export default class KeyControl {
     this.canvas.onkeydown = this.triggerKeyDownCallbacks.bind(this);
 
     this.canvas.onkeyup = function(e){
+      e.preventDefault();
       var callbacks = this.keyUpCallbacks[e.keyCode];
       if(callbacks){
         for (var cb = 0; cb < callbacks.length; cb++) {
@@ -18,6 +19,7 @@ export default class KeyControl {
   }
 
   triggerKeyDownCallbacks(e){
+    e.preventDefault();
     var keyCode = e.keyCode;
     // console.log(keyCode);
     var callbacks = this.keyCallbacks[keyCode];

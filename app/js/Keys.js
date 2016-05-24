@@ -4,12 +4,13 @@ export const KEY_MAP = {
   W: 87,
   S: 65,
   D: 68,
+  C: 67,
   LEFT: 37,
   RIGHT: 39,
   UP: 38,
   ENTER: 13,
   CTRL: 17,
-  NUM_0: 96,
-  
+  NUM_0: 96
+
 
 };
